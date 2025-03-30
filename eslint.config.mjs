@@ -4,9 +4,10 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 export default withNuxt({
   languageOptions: {
     globals: {
-      // 必要なグローバル変数を定義します
       isVue2: 'readonly',
       isVue3: 'readonly',
+      test: 'readonly', // Jestなどのテストフレームワーク用
+      expect: 'readonly', // Jestなどのテストフレームワーク用
       // 他のグローバル変数もここに追加
     },
   },

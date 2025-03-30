@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint ."
+    "test": "jest"
   },
   "dependencies": {
     "@nuxt/content": "^3.4.0",
@@ -25,5 +26,8 @@
     "typescript": "^5.8.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

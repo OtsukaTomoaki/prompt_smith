@@ -1,7 +1,8 @@
 export default {
   darkMode: 'class',
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  content: [
+    './pages/**/*.{vue,js,ts,jsx,tsx}',
+    './components/**/*.{vue,js,ts,jsx,tsx}',
+    './assets/**/*.{vue,js,ts,jsx,tsx}', // 追加
+  ],
 }

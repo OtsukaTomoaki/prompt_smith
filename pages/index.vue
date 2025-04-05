@@ -1,6 +1,6 @@
 
 <template>
-  <div class="max-w-5xl mx-auto p-6">
+  <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <h1 class="text-3xl font-bold flex items-center gap-2 mb-6">
       <HammerIcon class="w-6 h-6" /> Promptsmith
     </h1>

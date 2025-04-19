@@ -1,6 +1,14 @@
+<!-- app.vue -->
+<script setup>
+useHead({
+  htmlAttrs: {
+    class: 'dark',
+  },
+})
+</script>
+
 <template>
   <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+    <NuxtPage />
   </div>
 </template>

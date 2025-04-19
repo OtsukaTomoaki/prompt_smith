@@ -1,15 +1,50 @@
-// @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import vuePlugin from 'eslint-plugin-vue';
+import vueParser from 'vue-eslint-parser';
+import unicornPlugin from 'eslint-plugin-unicorn';
 
-export default withNuxt({
-  languageOptions: {
-    globals: {
-      isVue2: 'readonly',
-      isVue3: 'readonly',
-      test: 'readonly', // Jestなどのテストフレームワーク用
-      expect: 'readonly', // Jestなどのテストフレームワーク用
-      // 他のグローバル変数もここに追加
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  {
+    ignores: ['.output/**', 'node_modules/**'], // ←単独で置く！！！！！！
+  },
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: tsParser,
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      'vue': vuePlugin,
+      '@typescript-eslint': tsPlugin,
+      'unicorn': unicornPlugin,
+    },
+    rules: {
+      'unicorn/prefer-at': 'error',
+      'unicorn/no-array-reduce': 'error',
     },
   },
-  // 他のカスタム設定があればここに追加
-})
+  {
+    files: ['**/*.ts', '**/*.js'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      'unicorn': unicornPlugin,
+    },
+    rules: {
+      'unicorn/prefer-at': 'error',
+      'unicorn/no-array-reduce': 'error',
+    },
+  },
+];

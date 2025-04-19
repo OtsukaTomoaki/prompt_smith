@@ -1,15 +1,25 @@
-// @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
+// eslint.config.mjs
+import vue from 'eslint-plugin-vue'
+import ts from '@typescript-eslint/eslint-plugin'
 
-export default withNuxt({
-  languageOptions: {
-    globals: {
-      isVue2: 'readonly',
-      isVue3: 'readonly',
-      test: 'readonly', // Jestなどのテストフレームワーク用
-      expect: 'readonly', // Jestなどのテストフレームワーク用
-      // 他のグローバル変数もここに追加
+export default [
+  {
+    ignores: ['.nuxt', 'dist'],
+  },
+  {
+    files: ['**/*.ts', '**/*.vue'],
+    languageOptions: {
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        project: ['./tsconfig.json'],
+      },
+    },
+    plugins: {
+      vue,
+      '@typescript-eslint': ts,
+    },
+    rules: {
+      // 好きなルールをここに書く（なければ空でOK）
     },
   },
-  // 他のカスタム設定があればここに追加
-})
+]

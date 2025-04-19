@@ -1,75 +1,108 @@
 # Nuxt Minimal Starter
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This project is a minimal Nuxt 3 starter template customized with advanced development tooling to maintain high code quality and project scalability.
 
-## Setup
+Learn more about Nuxt in the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction).
 
-Make sure to install dependencies:
+---
+
+# 📦 Setup
+
+Install dependencies (npm is recommended, but you can also use pnpm, yarn, or bun):
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+---
+
+# 🚀 Development Server
 
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+---
+
+# 📦 Production Build
 
 Build the application for production:
 
 ```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+Preview production build locally:
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information. Common deployment platforms include Vercel, Netlify, and AWS Amplify.
+
+---
+
+# 🧹 Code Quality Setup
+
+To maintain high code quality and developer experience, this project incorporates the following tools:
+
+## 🔵 ESLint 9 + FlatConfig
+
+- Configured using the latest ESLint FlatConfig format.
+- Managed via `.eslint.config.mjs`.
+- Plugins included:
+  - `eslint-plugin-unicorn` (modern JavaScript/TypeScript best practices)
+  - `eslint-plugin-import` (import order and duplicate checking)
+  - `eslint-plugin-unused-imports` (detect and remove unused imports)
+  - `eslint-plugin-tsdoc` (TypeScript documentation comment syntax checking)
+
+Run lint check:
+
+```bash
+npm run lint
+```
+
+---
+
+## 🕓 Prettier
+
+- Code formatting is enforced by Prettier.
+- Configured via `.prettier.config.cjs`.
+- Integrated with ESLint to report formatting issues as warnings.
+
+Check formatting:
+
+```bash
+npx prettier --check .
+```
+
+Automatically fix formatting:
+
+```bash
+npx prettier --write .
+```
+
+---
+
+## ⚙️ GitHub Actions (CI)
+
+Automated checks are triggered on every pull request:
+
+- ESLint code analysis
+- Prettier formatting check
+- Run tests (`npm run test`)
+- Build confirmation (`npm run build`)
+
+CI configuration file: `.github/workflows/lint.yml`
+
+---
+
+# 📖 Additional Notes
+
+- It is recommended to run `npm run lint` locally before committing.
+- Consistent coding style and quality improve code reviews and overall development efficiency.
+
+Let's build high-quality and maintainable software together! 🚀
+

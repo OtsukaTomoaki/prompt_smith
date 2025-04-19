@@ -1,15 +1,16 @@
 # Nuxt Minimal Starter
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This project is a minimal Nuxt 3 starter template customized with advanced development tooling to maintain high code quality and project scalability.
+
+Learn more about Nuxt in the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction).
 
 ---
 
 # 📦 Setup
 
-Install dependencies:
+Install dependencies (npm is recommended, but you can also use pnpm, yarn, or bun):
 
 ```bash
-# npm
 npm install
 ```
 
@@ -39,25 +40,25 @@ Preview production build locally:
 npm run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information. Common deployment platforms include Vercel, Netlify, and AWS Amplify.
 
 ---
 
 # 🧹 Code Quality Setup
 
-このプロジェクトでは、開発品質を高めるため以下を導入しています。
+To maintain high code quality and developer experience, this project incorporates the following tools:
 
 ## 🔵 ESLint 9 + FlatConfig
 
-- 最新の ESLint FlatConfig スタイルで設定
-- `.eslint.config.mjs` を使用
-- 以下のプラグインを導入
-  - `eslint-plugin-unicorn` (モダンなJS/TSスタイル推奨)
-  - `eslint-plugin-import` (import順序と重複チェック)
-  - `eslint-plugin-unused-imports` (未使用import検出)
-  - `eslint-plugin-tsdoc` (TypeScriptドキュメントコメントチェック)
+- Configured using the latest ESLint FlatConfig format.
+- Managed via `.eslint.config.mjs`.
+- Plugins included:
+  - `eslint-plugin-unicorn` (modern JavaScript/TypeScript best practices)
+  - `eslint-plugin-import` (import order and duplicate checking)
+  - `eslint-plugin-unused-imports` (detect and remove unused imports)
+  - `eslint-plugin-tsdoc` (TypeScript documentation comment syntax checking)
 
-Lintコマンド:
+Run lint check:
 
 ```bash
 npm run lint
@@ -67,17 +68,17 @@ npm run lint
 
 ## 🕓 Prettier
 
-- コードフォーマットは Prettier に統一
-- `.prettier.config.cjs` でルールを管理
-- ESLintと連携しPrettier違反も警告表示
+- Code formatting is enforced by Prettier.
+- Configured via `.prettier.config.cjs`.
+- Integrated with ESLint to report formatting issues as warnings.
 
-Prettierチェック:
+Check formatting:
 
 ```bash
 npx prettier --check .
 ```
 
-フォーマット修正:
+Automatically fix formatting:
 
 ```bash
 npx prettier --write .
@@ -87,17 +88,21 @@ npx prettier --write .
 
 ## ⚙️ GitHub Actions (CI)
 
-- プルリクエスト作成時、以下を自動チェック
-  - ESLintチェック
-  - Prettierフォーマットチェック
-  - テスト実行 (`npm run test`)
-  - ビルド確認 (`npm run build`)
-- CI設定ファイル: `.github/workflows/lint.yml`
+Automated checks are triggered on every pull request:
+
+- ESLint code analysis
+- Prettier formatting check
+- Run tests (`npm run test`)
+- Build confirmation (`npm run build`)
+
+CI configuration file: `.github/workflows/lint.yml`
 
 ---
 
-# 📖 その他
+# 📖 Additional Notes
 
-- コミット前にローカルで `npm run lint` を実行推奨
-- コードスタイルに一調性を持たせ、レビュープロセスを効率化することを目指しています。
+- It is recommended to run `npm run lint` locally before committing.
+- Consistent coding style and quality improve code reviews and overall development efficiency.
+
+Let's build high-quality and maintainable software together! 🚀
 

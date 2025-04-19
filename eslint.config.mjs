@@ -1,25 +1,25 @@
-// eslint.config.mjs
-import vue from 'eslint-plugin-vue'
-import ts from '@typescript-eslint/eslint-plugin'
+// eslint.config.mjs にするなら（.cjsじゃなくて）
+import parser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import vuePlugin from 'eslint-plugin-vue';
 
+/** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
-    ignores: ['.nuxt', 'dist'],
-  },
-  {
-    files: ['**/*.ts', '**/*.vue'],
+    files: ['**/*.ts', '**/*.vue', '**/*.js'],
     languageOptions: {
-      parser: '@typescript-eslint/parser',
+      parser,
       parserOptions: {
-        project: ['./tsconfig.json'],
+        ecmaVersion: 'latest',
+        sourceType: 'module',
       },
     },
     plugins: {
-      vue,
-      '@typescript-eslint': ts,
+      '@typescript-eslint': tsPlugin,
+      'vue': vuePlugin,
     },
     rules: {
-      // 好きなルールをここに書く（なければ空でOK）
+      // ルールここに書く
     },
   },
-]
+];

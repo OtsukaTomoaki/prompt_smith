@@ -7,7 +7,7 @@ import unicornPlugin from 'eslint-plugin-unicorn';
 
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 import tsdocPlugin from 'eslint-plugin-tsdoc';
-
+import prettierPlugin from 'eslint-plugin-prettier';
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
@@ -25,12 +25,13 @@ export default [
       },
     },
     plugins: {
-      'vue': vuePlugin,
+      vue: vuePlugin,
       '@typescript-eslint': tsPlugin,
-      'unicorn': unicornPlugin,
-      'import': importPlugin,
+      unicorn: unicornPlugin,
+      import: importPlugin,
       'unused-imports': unusedImportsPlugin,
-      'tsdoc': tsdocPlugin,
+      tsdoc: tsdocPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
       'unicorn/prefer-at': 'error',
@@ -48,10 +49,11 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      'unicorn': unicornPlugin,
-      'import': importPlugin,
+      unicorn: unicornPlugin,
+      import: importPlugin,
       'unused-imports': unusedImportsPlugin,
-      'tsdoc': tsdocPlugin,
+      tsdoc: tsdocPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
       'unicorn/prefer-at': 'error',
@@ -64,6 +66,7 @@ export default [
         { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
       ],
       'tsdoc/syntax': 'warn',
+      'prettier/prettier': 'warn',
     },
   },
 ];

@@ -4,7 +4,7 @@ useHead({
   htmlAttrs: {
     class: 'dark',
   },
-})
+});
 </script>
 
 <template>

@@ -15,14 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import Card from '@/components/ui/card.vue'
-import Badge from '@/components/ui/badge.vue'
+import Card from '@/components/ui/card.vue';
+import Badge from '@/components/ui/badge.vue';
 
 defineProps<{
-  title: string
-  description: string
-  model: string
-  lastEdited: string
-  link: string
-}>()
+  title: string;
+  description: string;
+  model: string;
+  lastEdited: string;
+  link: string;
+}>();
 </script>

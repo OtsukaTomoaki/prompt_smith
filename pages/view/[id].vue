@@ -1,4 +1,3 @@
-
 <template>
   <div class="max-w-3xl mx-auto p-6">
     <div class="flex items-center gap-2 mb-2">
@@ -36,8 +35,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { HammerIcon, PlayIcon, UserIcon } from 'lucide-vue-next'
+import { ref } from 'vue';
+import { HammerIcon, PlayIcon, UserIcon } from 'lucide-vue-next';
 
 const yaml = `model: gpt-4
 temperature: 0.7
@@ -46,12 +45,12 @@ prompt: |
   You are an expert at explaining complex topics.
 
   Please explain the following concept in simple terms:
-  {{input}}`
+  {{input}}`;
 
-const input = ref('')
-const output = ref('')
+const input = ref('');
+const output = ref('');
 
 const handleRun = () => {
-  output.value = `This is a simulated response that would come from the AI model.`
-}
+  output.value = `This is a simulated response that would come from the AI model.`;
+};
 </script>

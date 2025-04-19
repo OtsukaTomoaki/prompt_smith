@@ -1,11 +1,13 @@
-
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <h1 class="text-3xl font-bold flex items-center gap-2 mb-6">
       <HammerIcon class="w-6 h-6" /> Promptsmith
     </h1>
 
-    <NuxtLink to="/forge" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <NuxtLink
+      to="/forge"
+      class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
       <PlusIcon class="w-4 h-4" /> Forge New Prompt
     </NuxtLink>
 
@@ -24,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { HammerIcon, PlusIcon } from 'lucide-vue-next'
-import PromptCard from '@/components/PromptCard.vue'
+import { HammerIcon, PlusIcon } from 'lucide-vue-next';
+import PromptCard from '@/components/PromptCard.vue';
 
 const samplePrompts = [
   {
@@ -63,5 +65,5 @@ const samplePrompts = [
     model: 'GPT-4',
     lastEdited: '2 days ago',
   },
-]
+];
 </script>

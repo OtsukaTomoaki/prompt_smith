@@ -1,4 +1,3 @@
-
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <h1 class="text-2xl font-bold flex items-center gap-2 mb-4">
@@ -27,7 +26,9 @@
         <PlayIcon class="w-4 h-4" /> Run
       </button>
 
-      <button class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 inline-flex items-center gap-1">
+      <button
+        class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 inline-flex items-center gap-1"
+      >
         <SaveIcon class="w-4 h-4" /> Save
       </button>
     </div>
@@ -40,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { HammerIcon, PlayIcon, SaveIcon } from 'lucide-vue-next'
+import { ref } from 'vue';
+import { HammerIcon, PlayIcon, SaveIcon } from 'lucide-vue-next';
 
 const sampleYaml = `model: gpt-4
 temperature: 0.7
@@ -50,13 +51,13 @@ prompt: |
   You are an expert at explaining complex topics.
 
   Please explain the following concept in simple terms:
-  {{input}}`
+  {{input}}`;
 
-const yaml = ref(sampleYaml)
-const input = ref('')
-const output = ref('')
+const yaml = ref(sampleYaml);
+const input = ref('');
+const output = ref('');
 
 const handleRun = () => {
-  output.value = `1. This is a simplified explanation.\n2. Made for demonstration.\n3. Replace with real API.`
-}
+  output.value = `1. This is a simplified explanation.\n2. Made for demonstration.\n3. Replace with real API.`;
+};
 </script>

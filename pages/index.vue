@@ -1,13 +1,18 @@
-
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <!-- ユーザーメニュー -->
-    <div v-if="showUserMenu" class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md">
+    <div
+      v-if="showUserMenu"
+      class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md"
+    >
       <p class="text-sm">{{ user?.email }}</p>
       <button @click="logout" class="mt-2 text-red-500 hover:underline text-xs">Logout</button>
     </div>
 
-    <NuxtLink to="/forge" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <NuxtLink
+      to="/forge"
+      class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
       <PlusIcon class="w-4 h-4" /> Forge New Prompt
     </NuxtLink>
 
@@ -26,10 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import PromptCard from '@/components/PromptCard.vue'
+import { useRouter } from 'vue-router';
+import PromptCard from '@/components/PromptCard.vue';
 
-const router = useRouter()
+const router = useRouter();
 
 const samplePrompts = [
   {
@@ -67,5 +72,5 @@ const samplePrompts = [
     model: 'GPT-4',
     lastEdited: '2 days ago',
   },
-]
+];
 </script>

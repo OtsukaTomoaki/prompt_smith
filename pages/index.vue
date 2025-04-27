@@ -1,8 +1,10 @@
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
-    <h1 class="text-3xl font-bold flex items-center gap-2 mb-6">
-      <HammerIcon class="w-6 h-6" /> Promptsmith
-    </h1>
+    <!-- ユーザーメニュー -->
+    <div v-if="showUserMenu" class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md">
+      <p class="text-sm">{{ user?.email }}</p>
+      <button @click="logout" class="mt-2 text-red-500 hover:underline text-xs">Logout</button>
+    </div>
 
     <NuxtLink
       to="/forge"
@@ -26,8 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { HammerIcon, PlusIcon } from 'lucide-vue-next';
-import PromptCard from '@/components/PromptCard.vue';
+import { useRouter } from 'vue-router'
+import PromptCard from '@/components/PromptCard.vue'
+
+const router = useRouter()
 
 const samplePrompts = [
   {

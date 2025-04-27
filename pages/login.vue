@@ -10,8 +10,11 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { SupabaseClient } from '@supabase/supabase-js'
 const { $supabase } = useNuxtApp()
+
+const router = useRouter()
 
 const loginWithGoogle = async () => {
   const { error } = await ($supabase as SupabaseClient).auth.signInWithOAuth({
@@ -19,6 +22,8 @@ const loginWithGoogle = async () => {
   })
   if (error) {
     console.error('Login error:', error.message)
+  } else {
+    router.push('/')
   }
 }
 </script>

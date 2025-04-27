@@ -1,4 +1,4 @@
- as SupabaseClient)# Nuxt Minimal Starter
+as SupabaseClient)# Nuxt Minimal Starter
 
 This project is a minimal Nuxt 3 starter template customized with advanced development tooling to maintain high code quality and project scalability.
 

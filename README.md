@@ -1,4 +1,4 @@
-# Nuxt Minimal Starter
+ as SupabaseClient)# Nuxt Minimal Starter
 
 This project is a minimal Nuxt 3 starter template customized with advanced development tooling to maintain high code quality and project scalability.
 
@@ -105,4 +105,3 @@ CI configuration file: `.github/workflows/lint.yml`
 - Consistent coding style and quality improve code reviews and overall development efficiency.
 
 Let's build high-quality and maintainable software together! 🚀
-

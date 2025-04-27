@@ -56,6 +56,6 @@ const logout = async () => {
   await ($supabase as SupabaseClient).auth.signOut()
   user.value = null
   router.push('/login')
-  window.location.reload()
+  router.replace('/login')
 }
 </script>

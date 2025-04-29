@@ -18,7 +18,7 @@
 
     <!-- ユーザーメニュー -->
     <div
-      v-if="showUserMenu"
+      v-if="showUserMenu && user"
       class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md"
     >
       <p class="text-sm">{{ user.email }}</p>

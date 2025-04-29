@@ -1,8 +1,4 @@
 <template>
-  <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-  </head>
   <div class="min-h-screen dark:bg-gray-900 dark:text-white">
     <!-- ヘッダー -->
     <header class="max-w-5xl mx-auto p-6 flex justify-between items-center">
@@ -47,12 +43,16 @@ const router = useRouter();
 const user = ref<User | null>(null);
 const showUserMenu = ref(false);
 
+useHead({
+  link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter&display=swap' }
+  ]
+})
+
 onMounted(async () => {
   const { data } = await ($supabase as SupabaseClient).auth.getUser();
   user.value = data?.user;
-  if (!user.value) {
-    router.push('/login');
-  }
 });
 
 const toggleUserMenu = () => {

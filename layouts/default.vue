@@ -9,16 +9,16 @@
         <button
           v-if="user"
           @click="toggleUserMenu"
-          class="flex items-center justify-center w-10 h-10 rounded-full bg-white text-gray-800 hover:bg-gray-200"
+          class="flex items-center justify-center w-10 h-10 rounded-full"
         >
-          <span class="text-lg">{{ user.email.charAt(0).toUpperCase() }}</span>
+          <UserIcon class="w-6 h-6" />
         </button>
       </div>
     </header>
 
     <!-- ユーザーメニュー -->
     <div
-      v-if="showUserMenu"
+      v-if="showUserMenu && user"
       class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md"
     >
       <p class="text-sm">{{ user.email }}</p>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { HammerIcon } from 'lucide-vue-next';
+import { HammerIcon, UserIcon } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import type { User, SupabaseClient } from '@supabase/supabase-js';
 

@@ -31,10 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 import PromptCard from '@/components/PromptCard.vue';
-
-const router = useRouter();
 
 const samplePrompts = [
   {

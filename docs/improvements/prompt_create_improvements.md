@@ -148,8 +148,9 @@
    - 再利用性と保守性の向上
    - `composables/usePromptValidation.ts`に実装済み
 
-2. **データベーススキーマの更新**
+2. ✅ **データベーススキーマの更新** (完了)
    - 設計と実装の一貫性確保
+   - `supabase/migrations/002_update_prompts.sql`で実装済み
 
 3. **プロンプトプレビュー機能**
    - ユーザー体験の大幅な向上

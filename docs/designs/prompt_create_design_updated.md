@@ -16,6 +16,7 @@
 | prompt_text  | text      | ✅  | プロンプト本文                         |
 | model        | text      | ✅  | 使用するモデル名                        |
 | user_id      | uuid      | ✅  | Supabase `auth.users` に紐付く作成者ID |
+| tags         | text[]    | ❌  | プロンプトに関連するタグの配列                |
 | created_at   | timestamp | ✅  | 作成日時                            |
 
 ### データ送信フロー
@@ -26,11 +27,28 @@
 
 ### 🔒 Supabase RLS ポリシー
 
+以下のRLSポリシーが実装されています：
+
 ```sql
-create policy "Users can access their own prompts"
-on prompts
-for all
-using (auth.uid() = user_id);
+-- 閲覧ポリシー
+CREATE POLICY "Users can view their own prompts"
+  ON prompts FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- 挿入ポリシー
+CREATE POLICY "Users can insert their own prompts"
+  ON prompts FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- 更新ポリシー
+CREATE POLICY "Users can update their own prompts"
+  ON prompts FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- 削除ポリシー
+CREATE POLICY "Users can delete their own prompts"
+  ON prompts FOR DELETE
+  USING (auth.uid() = user_id);
 ```
 
 ## 3. フロントエンドUI
@@ -161,9 +179,13 @@ const {
 
 ## 7. 今後の課題
 
-### データベーススキーマの更新
+### ~~データベーススキーマの更新~~ (完了)
 
-* マイグレーションファイル（`supabase/migrations/001_create_prompts.sql`）に`prompt_text`カラムと`user_id`カラムが含まれていないため、更新が必要
+* ~~マイグレーションファイル（`supabase/migrations/001_create_prompts.sql`）に`prompt_text`カラムと`user_id`カラムが含まれていないため、更新が必要~~
+* ✅ `supabase/migrations/002_update_prompts.sql`でスキーマ更新を実装済み
+* ✅ `prompt_text`、`user_id`、`tags`カラムの追加
+* ✅ RLSポリシーの実装
+* ✅ インデックスの追加
 
 ### ~~バリデーションロジックの分離~~ (完了)
 

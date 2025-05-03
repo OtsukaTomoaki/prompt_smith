@@ -57,7 +57,19 @@
 | prompt_text  | text      | ✅  | プロンプト本文                         |
 | model        | text      | ✅  | 使用するモデル名                        |
 | user_id      | uuid      | ✅  | Supabase `auth.users` に紐付く作成者ID |
+| tags         | text[]    | ❌  | プロンプトに関連するタグの配列                |
 | created_at   | timestamp | ✅  | 作成日時                            |
+
+### セキュリティ
+
+プロンプトデータはRow Level Security (RLS)によって保護されています：
+
+- ユーザーは自分が作成したプロンプトのみ閲覧・編集・削除できます
+- 以下のRLSポリシーが実装されています：
+  - 閲覧: `Users can view their own prompts`
+  - 挿入: `Users can insert their own prompts`
+  - 更新: `Users can update their own prompts`
+  - 削除: `Users can delete their own prompts`
 
 ### バリデーションルール
 

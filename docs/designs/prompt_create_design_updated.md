@@ -69,51 +69,66 @@ const availableModels = [
 
 ### バリデーション実装
 
-バリデーションロジックは現在`create.vue`コンポーネント内に直接実装されています。今後の改善として、再利用可能なバリデーションロジックへの分離を検討します。
+バリデーションロジックは`composables/usePromptValidation.ts`に分離され、コンポジションAPIとして実装されています。これにより、再利用性と保守性が向上しました。
 
-```javascript
-// バリデーション関数
-const validateForm = () => {
-  let isValid = true;
+```typescript
+// composables/usePromptValidation.ts
+export function usePromptValidation() {
+  // 利用可能なモデルリスト
+  const availableModels = [
+    'GPT-4',
+    'GPT-3.5',
+    'Claude 3',
+    'Claude 2',
+    'Gemini Pro',
+    'Llama 3'
+  ];
 
-  // エラーをリセット
-  errors.title = '';
-  errors.description = '';
-  errors.prompt_text = '';
-  errors.model = '';
+  // フォームの初期状態
+  const form = reactive<PromptForm>({
+    title: '',
+    description: '',
+    prompt_text: '',
+    model: ''
+  });
 
-  // タイトルのバリデーション
-  if (!form.title) {
-    errors.title = 'タイトルは必須です';
-    isValid = false;
-  } else if (form.title.length > 100) {
-    errors.title = 'タイトルは100文字以内で入力してください';
-    isValid = false;
-  }
+  // エラー状態
+  const errors = reactive<PromptErrors>({
+    title: '',
+    description: '',
+    prompt_text: '',
+    model: ''
+  });
 
-  // 説明のバリデーション
-  if (form.description && form.description.length > 300) {
-    errors.description = '説明は300文字以内で入力してください';
-    isValid = false;
-  }
+  // バリデーション関数
+  const validateForm = () => {
+    // バリデーションロジックの実装
+    // ...
+  };
 
-  // プロンプト本文のバリデーション
-  if (!form.prompt_text) {
-    errors.prompt_text = 'プロンプト本文は必須です';
-    isValid = false;
-  } else if (form.prompt_text.length > 4000) {
-    errors.prompt_text = 'プロンプト本文は4000文字以内で入力してください';
-    isValid = false;
-  }
+  return {
+    form,
+    errors,
+    availableModels,
+    validateForm,
+    // その他の関数やプロパティ
+  };
+}
+```
 
-  // モデルのバリデーション
-  if (!form.model) {
-    errors.model = 'モデルを選択してください';
-    isValid = false;
-  }
+`create.vue`コンポーネントでは、このコンポジションAPIをインポートして使用しています：
 
-  return isValid;
-};
+```typescript
+// pages/create.vue
+const {
+  form,
+  errors,
+  availableModels,
+  isSubmitting,
+  submitError,
+  validateForm,
+  initializeDefaultModel
+} = usePromptValidation();
 ```
 
 ## 5. 環境による動作の違い
@@ -150,9 +165,10 @@ const validateForm = () => {
 
 * マイグレーションファイル（`supabase/migrations/001_create_prompts.sql`）に`prompt_text`カラムと`user_id`カラムが含まれていないため、更新が必要
 
-### バリデーションロジックの分離
+### ~~バリデーションロジックの分離~~ (完了)
 
-* 現在のバリデーションロジックをコンポジションAPI（composables）を使用して再利用可能な形に分離
+* ~~現在のバリデーションロジックをコンポジションAPI（composables）を使用して再利用可能な形に分離~~
+* ✅ バリデーションロジックを`composables/usePromptValidation.ts`に分離済み
 
 ### トップページの実装
 

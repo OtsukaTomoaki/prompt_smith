@@ -6,10 +6,10 @@
 
 ## ✅ プロジェクト全体方針
 
-* **フレームワーク**：Nuxt 3（Composition API）
-* **言語**：TypeScript（`.vue` では `<script setup lang="ts">` を使用）
-* **UIフレームワーク**：TailwindCSS（`darkMode: 'class'` で設定済み）
-* **デプロイ想定**：Vercel または Amplify
+- **フレームワーク**：Nuxt 3（Composition API）
+- **言語**：TypeScript（`.vue` では `<script setup lang="ts">` を使用）
+- **UIフレームワーク**：TailwindCSS（`darkMode: 'class'` で設定済み）
+- **デプロイ想定**：Vercel または Amplify
 
 ---
 
@@ -35,23 +35,23 @@ prompt_smith/
 
 ### 🔐 認証（Googleログイン / Supabase）
 
-* 認証は Supabase Auth の Google Provider を使用
-* `useSupabaseClient().auth.getUser()` でログイン状態を取得
-* `middleware/auth.global.ts` にて全ルートをガード
-* 未ログイン時は `/login` にリダイレクト
+- 認証は Supabase Auth の Google Provider を使用
+- `useSupabaseClient().auth.getUser()` でログイン状態を取得
+- `middleware/auth.global.ts` にて全ルートをガード
+- 未ログイン時は `/login` にリダイレクト
 
 ```ts
 export default defineNuxtRouteMiddleware(async (to) => {
   if (to.path === '/login') return;
-  const { $supabase } = useNuxtApp()
-  const { data } = await $supabase.auth.getUser()
-  if (!data.user) return navigateTo('/login')
-})
+  const { $supabase } = useNuxtApp();
+  const { data } = await $supabase.auth.getUser();
+  if (!data.user) return navigateTo('/login');
+});
 ```
 
 ### 🧾 Supabase + DB操作
 
-* `prompts` テーブル構造：
+- `prompts` テーブル構造：
 
   ```sql
   create table prompts (
@@ -64,22 +64,24 @@ export default defineNuxtRouteMiddleware(async (to) => {
     created_at timestamp with time zone default timezone('utc', now())
   );
   ```
-* クエリ実行は Supabase Client 経由
+
+- クエリ実行は Supabase Client 経由
 
   ```ts
   const { data, error } = await $supabase.from('prompts').insert({ ... })
   ```
-* `user_id` は常にログイン中のユーザーIDから取得し、挿入に含めること
+
+- `user_id` は常にログイン中のユーザーIDから取得し、挿入に含めること
 
 ---
 
 ## 🎨 UIルール
 
-* TailwindCSS でスタイル定義
-* ダークモード対応： `html.class = 'dark'`
-* デフォルトフォントは Google Fontsの Inter を使用
-* 共通UIは `components/ui/` に配置
-* アイコンは `lucide-vue-next` を使用（例：`HammerIcon`, `UserIcon`）
+- TailwindCSS でスタイル定義
+- ダークモード対応： `html.class = 'dark'`
+- デフォルトフォントは Google Fontsの Inter を使用
+- 共通UIは `components/ui/` に配置
+- アイコンは `lucide-vue-next` を使用（例：`HammerIcon`, `UserIcon`）
 
 ```html
 <HammerIcon class="w-6 h-6" />
@@ -89,29 +91,29 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
 ## 📐 命名規則
 
-| 対象       | 規則                            |
-| :------- | :---------------------------- |
+| 対象             | 規則                          |
+| :--------------- | :---------------------------- |
 | コンポーネント名 | PascalCase (`PromptCard.vue`) |
-| 関数・変数名   | camelCase (`getPromptData`)   |
-| DBカラム名   | snake\_case (`created_at`)    |
-| CSSクラス   | Tailwind準拠 (`bg-gray-900`)    |
+| 関数・変数名     | camelCase (`getPromptData`)   |
+| DBカラム名       | snake_case (`created_at`)     |
+| CSSクラス        | Tailwind準拠 (`bg-gray-900`)  |
 
 ---
 
 ## ✅ コーディングスタイル
 
-* 関数は可能な限り `async/await` を使用
-* コンポーネントは疎結合・再利用性を意識
-* グローバル状態は最小限（基本は props / emits / composable）
-* バリデーションは `zod` or フロントロジックで簡易対応
+- 関数は可能な限り `async/await` を使用
+- コンポーネントは疎結合・再利用性を意識
+- グローバル状態は最小限（基本は props / emits / composable）
+- バリデーションは `zod` or フロントロジックで簡易対応
 
 ---
 
 ## ✅ テスト観点（将来的に）
 
-* Jest or Vitest + Testing Library
-* 見た目や内部構造ではなく "振る舞いベース" でテスト
-* DBアクセスはモック or Supabase Test環境
+- Jest or Vitest + Testing Library
+- 見た目や内部構造ではなく "振る舞いベース" でテスト
+- DBアクセスはモック or Supabase Test環境
 
 ---
 

@@ -49,16 +49,16 @@
 
 プロンプトデータは以下の構造でSupabaseの`prompts`テーブルに保存されます：
 
-| カラム名       | 型         | 必須 | 説明                              |
-| :----------- | :-------- | :- | :------------------------------ |
-| id           | uuid      | ✅  | プロンプトID（主キー）                    |
-| title        | text      | ✅  | タイトル                            |
-| description  | text      | ❌  | 概要説明                            |
-| prompt_text  | text      | ✅  | プロンプト本文                         |
-| model        | text      | ✅  | 使用するモデル名                        |
-| user_id      | uuid      | ✅  | Supabase `auth.users` に紐付く作成者ID |
-| tags         | text[]    | ❌  | プロンプトに関連するタグの配列                |
-| created_at   | timestamp | ✅  | 作成日時                            |
+| カラム名    | 型        | 必須 | 説明                                   |
+| :---------- | :-------- | :--- | :------------------------------------- |
+| id          | uuid      | ✅   | プロンプトID（主キー）                 |
+| title       | text      | ✅   | タイトル                               |
+| description | text      | ❌   | 概要説明                               |
+| prompt_text | text      | ✅   | プロンプト本文                         |
+| model       | text      | ✅   | 使用するモデル名                       |
+| user_id     | uuid      | ✅   | Supabase `auth.users` に紐付く作成者ID |
+| tags        | text[]    | ❌   | プロンプトに関連するタグの配列         |
+| created_at  | timestamp | ✅   | 作成日時                               |
 
 ### セキュリティ
 
@@ -85,6 +85,7 @@
 ### 環境による動作の違い
 
 - 開発環境（`NODE_ENV === 'development'`）：
+
   - 自動的に最初のモデルが選択される
   - Supabaseへの接続をモックし、コンソールにデータを出力
   - 1秒後にトップページへリダイレクト

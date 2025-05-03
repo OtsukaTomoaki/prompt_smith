@@ -18,21 +18,14 @@ export interface PromptErrors {
 
 export function usePromptValidation() {
   // 利用可能なモデルリスト
-  const availableModels = [
-    'GPT-4',
-    'GPT-3.5',
-    'Claude 3',
-    'Claude 2',
-    'Gemini Pro',
-    'Llama 3'
-  ];
+  const availableModels = ['GPT-4', 'GPT-3.5', 'Claude 3', 'Claude 2', 'Gemini Pro', 'Llama 3'];
 
   // フォームの初期状態
   const form = reactive<PromptForm>({
     title: '',
     description: '',
     prompt_text: '',
-    model: ''
+    model: '',
   });
 
   // エラー状態
@@ -40,7 +33,7 @@ export function usePromptValidation() {
     title: '',
     description: '',
     prompt_text: '',
-    model: ''
+    model: '',
   });
 
   // 送信状態
@@ -122,6 +115,6 @@ export function usePromptValidation() {
     submitError,
     validateForm,
     initializeDefaultModel,
-    resetForm
+    resetForm,
   };
 }

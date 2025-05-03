@@ -7,7 +7,9 @@
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- タイトル入力欄 -->
       <div>
-        <label for="title" class="block mb-2 font-medium">タイトル <span class="text-red-500">*</span></label>
+        <label for="title" class="block mb-2 font-medium"
+          >タイトル <span class="text-red-500">*</span></label
+        >
         <input
           id="title"
           v-model="form.title"
@@ -35,7 +37,9 @@
 
       <!-- プロンプト本文入力欄 -->
       <div>
-        <label for="prompt_text" class="block mb-2 font-medium">プロンプト本文 <span class="text-red-500">*</span></label>
+        <label for="prompt_text" class="block mb-2 font-medium"
+          >プロンプト本文 <span class="text-red-500">*</span></label
+        >
         <textarea
           id="prompt_text"
           v-model="form.prompt_text"
@@ -49,7 +53,9 @@
 
       <!-- モデル選択ボックス -->
       <div>
-        <label for="model" class="block mb-2 font-medium">モデル <span class="text-red-500">*</span></label>
+        <label for="model" class="block mb-2 font-medium"
+          >モデル <span class="text-red-500">*</span></label
+        >
         <select
           id="model"
           v-model="form.model"
@@ -66,16 +72,25 @@
       <div class="flex gap-4">
         <Button type="submit" :disabled="isSubmitting">
           <SaveIcon v-if="!isSubmitting" class="w-4 h-4 mr-2" />
-          <span v-if="isSubmitting" class="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span
+            v-if="isSubmitting"
+            class="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></span>
           {{ isSubmitting ? '保存中...' : '保存する' }}
         </Button>
-        <NuxtLink to="/" class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+        <NuxtLink
+          to="/"
+          class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        >
           キャンセル
         </NuxtLink>
       </div>
 
       <!-- エラーメッセージ -->
-      <div v-if="submitError" class="p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
+      <div
+        v-if="submitError"
+        class="p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg"
+      >
         {{ submitError }}
       </div>
     </form>
@@ -96,7 +111,7 @@ const {
   isSubmitting,
   submitError,
   validateForm,
-  initializeDefaultModel
+  initializeDefaultModel,
 } = usePromptValidation();
 
 // テスト環境では自動的にモデルを選択
@@ -129,7 +144,7 @@ const handleSubmit = async () => {
           description: form.description || null,
           prompt_text: form.prompt_text,
           model: form.model,
-          user_id: 'test-user-id'
+          user_id: 'test-user-id',
         });
 
         // 成功をシミュレート
@@ -166,7 +181,7 @@ const handleSubmit = async () => {
       description: form.description || null,
       prompt_text: form.prompt_text,
       model: form.model,
-      user_id: userData.user.id
+      user_id: userData.user.id,
     });
 
     if (error) {

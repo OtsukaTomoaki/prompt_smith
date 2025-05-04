@@ -4,9 +4,7 @@
       <h3 class="text-lg font-semibold">{{ title || '無題のプロンプト' }}</h3>
       <p class="text-sm text-gray-400">{{ description || '説明なし' }}</p>
 
-      <div
-        class="mt-4 p-3 bg-gray-100 dark:bg-gray-800/50 rounded-md overflow-auto markdown-body"
-      >
+      <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800/50 rounded-md overflow-auto markdown-body">
         <div v-if="prompt_text" v-html="renderedMarkdown"></div>
         <div v-else class="text-gray-500">プロンプト本文なし</div>
       </div>
@@ -115,7 +113,12 @@ export default {
   font-size: 85%;
   background-color: rgba(27, 31, 35, 0.05);
   border-radius: 3px;
-  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+  font-family:
+    SFMono-Regular,
+    Consolas,
+    Liberation Mono,
+    Menlo,
+    monospace;
 }
 
 .markdown-body pre {

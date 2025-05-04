@@ -34,48 +34,48 @@
     <div v-if="activeTab === 'edit'" class="flex flex-col lg:flex-row gap-6">
       <!-- 編集フォーム -->
       <div class="lg:w-1/2 space-y-4">
-      <div class="mb-4">
-        <label class="block mb-2 font-medium">タイトル</label>
-        <input
-          v-model="title"
-          type="text"
-          class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
-          placeholder="プロンプトのタイトル"
-        />
-      </div>
+        <div class="mb-4">
+          <label class="block mb-2 font-medium">タイトル</label>
+          <input
+            v-model="title"
+            type="text"
+            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
+            placeholder="プロンプトのタイトル"
+          />
+        </div>
 
-      <div class="mb-4">
-        <label class="block mb-2 font-medium">説明</label>
+        <div class="mb-4">
+          <label class="block mb-2 font-medium">説明</label>
+          <textarea
+            v-model="description"
+            rows="2"
+            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
+            placeholder="プロンプトの説明"
+          ></textarea>
+        </div>
+
+        <label class="block mb-2 font-medium">YAML設定</label>
         <textarea
-          v-model="description"
-          rows="2"
-          class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
-          placeholder="プロンプトの説明"
+          v-model="yaml"
+          rows="10"
+          class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 font-mono text-sm rounded mb-4"
         ></textarea>
-      </div>
 
-      <label class="block mb-2 font-medium">YAML設定</label>
-      <textarea
-        v-model="yaml"
-        rows="10"
-        class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 font-mono text-sm rounded mb-4"
-      ></textarea>
+        <div class="flex gap-4 mb-4">
+          <button
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
+            @click="handleSave"
+          >
+            <SaveIcon class="w-4 h-4" /> 保存
+          </button>
 
-      <div class="flex gap-4 mb-4">
-        <button
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
-          @click="handleSave"
-        >
-          <SaveIcon class="w-4 h-4" /> 保存
-        </button>
-
-        <NuxtLink
-          to="/"
-          class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-        >
-          キャンセル
-        </NuxtLink>
-      </div>
+          <NuxtLink
+            to="/"
+            class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            キャンセル
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- プレビュー表示 -->

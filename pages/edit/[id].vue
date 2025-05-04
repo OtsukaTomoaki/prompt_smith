@@ -76,22 +76,22 @@
           :lastEdited="getCurrentDateTime()"
         />
       </div>
-   </div>
-   <div class="flex gap-4 mb-4">
-    <button
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
-      @click="handleSave"
-    >
-      <SaveIcon class="w-4 h-4" /> 保存
-    </button>
+    </div>
+    <div class="flex gap-4 mb-4">
+      <button
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
+        @click="handleSave"
+      >
+        <SaveIcon class="w-4 h-4" /> 保存
+      </button>
 
-    <NuxtLink
-      to="/"
-      class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-    >
-      キャンセル
-    </NuxtLink>
-  </div>
+      <NuxtLink
+        to="/"
+        class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+      >
+        キャンセル
+      </NuxtLink>
+    </div>
 
     <!-- 実行画面 -->
     <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">

@@ -1,81 +1,57 @@
 <template>
   <div class="min-h-screen max-w-6xl mx-auto dark:bg-gray-900 dark:text-white p-6">
-    <h1 class="text-2xl font-bold flex items-center gap-2 mb-4">
-      <PlusIcon class="w-5 h-5" /> プロンプト作成
-    </h1>
+    <PageHeader icon="PlusIcon" title="プロンプト作成" />
 
     <!-- 分割表示レイアウト -->
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- 編集フォーム -->
       <form @submit.prevent="handleSubmit" class="space-y-6 lg:w-1/2">
         <!-- タイトル入力欄 -->
-        <div>
-          <label for="title" class="block mb-2 font-medium"
-            >タイトル <span class="text-red-500">*</span></label
-          >
-          <input
-            id="title"
-            v-model="form.title"
-            type="text"
-            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
-            :class="{ 'border-red-500': errors.title }"
-            placeholder="プロンプトのタイトルを入力（1-100文字）"
-          />
-          <p v-if="errors.title" class="mt-1 text-sm text-red-500">{{ errors.title }}</p>
-        </div>
+        <FormInput
+          id="title"
+          v-model="form.title"
+          label="タイトル"
+          type="text"
+          placeholder="プロンプトのタイトルを入力（1-100文字）"
+          :error="errors.title"
+          required
+        />
 
         <!-- 説明入力欄 -->
-        <div>
-          <label for="description" class="block mb-2 font-medium">説明</label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            rows="2"
-            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
-            :class="{ 'border-red-500': errors.description }"
-            placeholder="プロンプトの説明（最大300文字）"
-          ></textarea>
-          <p v-if="errors.description" class="mt-1 text-sm text-red-500">
-            {{ errors.description }}
-          </p>
-        </div>
+        <FormInput
+          id="description"
+          v-model="form.description"
+          label="説明"
+          type="textarea"
+          placeholder="プロンプトの説明（最大300文字）"
+          :error="errors.description"
+          :rows="2"
+        />
 
         <!-- プロンプト本文入力欄 -->
-        <div>
-          <label for="prompt_text" class="block mb-2 font-medium"
-            >プロンプト本文 <span class="text-red-500">*</span></label
-          >
-          <textarea
-            id="prompt_text"
-            v-model="form.prompt_text"
-            rows="8"
-            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 font-mono text-sm rounded"
-            :class="{ 'border-red-500': errors.prompt_text }"
-            placeholder="プロンプト本文を入力（1-4000文字）"
-          ></textarea>
-          <p v-if="errors.prompt_text" class="mt-1 text-sm text-red-500">
-            {{ errors.prompt_text }}
-          </p>
-        </div>
+        <FormInput
+          id="prompt_text"
+          v-model="form.prompt_text"
+          label="プロンプト本文"
+          type="textarea"
+          placeholder="プロンプト本文を入力（1-4000文字）"
+          :error="errors.prompt_text"
+          :rows="8"
+          monospace
+          required
+        />
 
         <!-- モデル選択ボックス -->
-        <div>
-          <label for="model" class="block mb-2 font-medium"
-            >モデル <span class="text-red-500">*</span></label
-          >
-          <select
-            id="model"
-            v-model="form.model"
-            class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 rounded"
-            :class="{ 'border-red-500': errors.model }"
-          >
-            <option value="" disabled>モデルを選択してください</option>
-            <option v-for="model in availableModels" :key="model" :value="model">
-              {{ model }}
-            </option>
-          </select>
-          <p v-if="errors.model" class="mt-1 text-sm text-red-500">{{ errors.model }}</p>
-        </div>
+        <FormInput
+          id="model"
+          v-model="form.model"
+          label="モデル"
+          type="select"
+          placeholder="モデルを選択してください"
+          :error="errors.model"
+          :options="availableModels"
+          required
+        />
 
         <!-- エラーメッセージ -->
         <div
@@ -103,30 +79,23 @@
     </div>
 
     <!-- 送信ボタン（フォーム下部に表示） -->
-    <div class="flex gap-4 mt-6">
-      <Button type="button" @click="handleSubmit" :disabled="isSubmitting">
-        <SaveIcon v-if="!isSubmitting" class="w-4 h-4 mr-2" />
-        <span
-          v-if="isSubmitting"
-          class="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"
-        ></span>
-        {{ isSubmitting ? '保存中...' : '保存する' }}
-      </Button>
-      <NuxtLink
-        to="/"
-        class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-      >
-        キャンセル
-      </NuxtLink>
-    </div>
+    <ActionButtons
+      primaryText="保存する"
+      loadingText="保存中..."
+      :isLoading="isSubmitting"
+      primaryIcon="SaveIcon"
+      @primary-action="handleSubmit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { PlusIcon, SaveIcon, PencilIcon, EyeIcon } from 'lucide-vue-next';
-import Button from '../components/ui/button.vue';
+import { onMounted } from 'vue';
+import { EyeIcon } from 'lucide-vue-next';
 import PromptPreview from '../components/PromptPreview.vue';
+import PageHeader from '../components/ui/PageHeader.vue';
+import FormInput from '../components/ui/FormInput.vue';
+import ActionButtons from '../components/ui/ActionButtons.vue';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // 現在の日時を取得する関数

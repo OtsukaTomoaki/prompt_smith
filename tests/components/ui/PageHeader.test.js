@@ -6,8 +6,8 @@ describe('PageHeader', () => {
   it('デフォルトのプロップスで正しくレンダリングされる', () => {
     const wrapper = mount(PageHeader, {
       props: {
-        title: 'テストタイトル'
-      }
+        title: 'テストタイトル',
+      },
     });
 
     // タイトルが正しく表示されているか
@@ -21,8 +21,8 @@ describe('PageHeader', () => {
     const wrapper = mount(PageHeader, {
       props: {
         title: 'テストタイトル',
-        icon: 'HammerIcon'
-      }
+        icon: 'HammerIcon',
+      },
     });
 
     // タイトルが正しく表示されているか
@@ -32,11 +32,11 @@ describe('PageHeader', () => {
   it('スロットコンテンツが正しく表示される', () => {
     const wrapper = mount(PageHeader, {
       props: {
-        title: 'デフォルトタイトル'
+        title: 'デフォルトタイトル',
       },
       slots: {
-        default: 'カスタムタイトル'
-      }
+        default: 'カスタムタイトル',
+      },
     });
 
     // スロットコンテンツが表示されているか

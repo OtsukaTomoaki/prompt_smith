@@ -6,22 +6,22 @@ import PromptPreview from '../../components/PromptPreview.vue';
 vi.mock('#app', () => ({
   useNuxtApp: () => ({
     $md: {
-      render: (text) => `<p>${text}</p>`
-    }
-  })
+      render: (text) => `<p>${text}</p>`,
+    },
+  }),
 }));
 
 // コンポーネントをスタブ化
 vi.mock('../../components/ui/card.vue', () => ({
   default: {
-    template: '<div class="card-stub"><slot /></div>'
-  }
+    template: '<div class="card-stub"><slot /></div>',
+  },
 }));
 
 vi.mock('../../components/ui/badge.vue', () => ({
   default: {
-    template: '<div class="badge-stub"><slot /></div>'
-  }
+    template: '<div class="badge-stub"><slot /></div>',
+  },
 }));
 
 describe('PromptPreview', () => {

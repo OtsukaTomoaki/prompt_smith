@@ -5,7 +5,7 @@ import PromptRunSection from '../../components/PromptRunSection.vue';
 // Buttonコンポーネントのモック
 const ButtonStub = {
   template: '<button class="button-stub" :disabled="disabled"><slot /></button>',
-  props: ['disabled', 'type']
+  props: ['disabled', 'type'],
 };
 
 describe('PromptRunSection', () => {
@@ -13,9 +13,9 @@ describe('PromptRunSection', () => {
     const wrapper = mount(PromptRunSection, {
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // 入力エリアが存在するか
@@ -37,13 +37,13 @@ describe('PromptRunSection', () => {
         modelValue: 'テスト入力',
         inputLabel: 'カスタム入力ラベル',
         placeholder: 'カスタムプレースホルダー',
-        runButtonText: 'カスタム実行'
+        runButtonText: 'カスタム実行',
       },
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // カスタムラベルが表示されているか
@@ -62,13 +62,13 @@ describe('PromptRunSection', () => {
   it('ローディング状態が正しく表示される', () => {
     const wrapper = mount(PromptRunSection, {
       props: {
-        isRunning: true
+        isRunning: true,
       },
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // ローディングテキストが表示されているか
@@ -84,13 +84,13 @@ describe('PromptRunSection', () => {
   it('出力結果が表示される', () => {
     const wrapper = mount(PromptRunSection, {
       props: {
-        output: 'テスト出力結果'
+        output: 'テスト出力結果',
       },
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // 出力セクションが表示されているか
@@ -106,13 +106,13 @@ describe('PromptRunSection', () => {
   it('v-modelが正しく動作する', async () => {
     const wrapper = mount(PromptRunSection, {
       props: {
-        modelValue: ''
+        modelValue: '',
       },
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // 入力値を変更
@@ -128,9 +128,9 @@ describe('PromptRunSection', () => {
     const wrapper = mount(PromptRunSection, {
       global: {
         stubs: {
-          Button: ButtonStub
-        }
-      }
+          Button: ButtonStub,
+        },
+      },
     });
 
     // 実行ボタンをクリック

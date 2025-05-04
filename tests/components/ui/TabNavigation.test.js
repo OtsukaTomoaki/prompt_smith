@@ -4,22 +4,22 @@ import TabNavigation from '../../../components/ui/TabNavigation.vue';
 
 // アイコンコンポーネントのモック
 const TestIcon = {
-  template: '<div class="test-icon"></div>'
+  template: '<div class="test-icon"></div>',
 };
 
 describe('TabNavigation', () => {
   const tabs = [
     { id: 'tab1', label: 'タブ1', icon: TestIcon },
     { id: 'tab2', label: 'タブ2', icon: TestIcon },
-    { id: 'tab3', label: 'タブ3', icon: TestIcon }
+    { id: 'tab3', label: 'タブ3', icon: TestIcon },
   ];
 
   it('タブが正しくレンダリングされる', () => {
     const wrapper = mount(TabNavigation, {
       props: {
         modelValue: 'tab1',
-        tabs
-      }
+        tabs,
+      },
     });
 
     // タブボタンが正しい数だけ表示されているか
@@ -36,8 +36,8 @@ describe('TabNavigation', () => {
     const wrapper = mount(TabNavigation, {
       props: {
         modelValue: 'tab2',
-        tabs
-      }
+        tabs,
+      },
     });
 
     // タブボタンが正しい数だけ表示されているか
@@ -55,8 +55,8 @@ describe('TabNavigation', () => {
     const wrapper = mount(TabNavigation, {
       props: {
         modelValue: 'tab1',
-        tabs
-      }
+        tabs,
+      },
     });
 
     // タブボタンをクリック

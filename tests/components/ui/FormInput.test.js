@@ -12,8 +12,8 @@ describe('FormInput', () => {
           label: 'テスト入力',
           modelValue: '',
           type: 'text',
-          placeholder: 'テストプレースホルダー'
-        }
+          placeholder: 'テストプレースホルダー',
+        },
       });
 
       // ラベルが正しく表示されているか
@@ -35,8 +35,8 @@ describe('FormInput', () => {
           id: 'test-input',
           label: 'テスト入力',
           modelValue: '',
-          type: 'text'
-        }
+          type: 'text',
+        },
       });
 
       // 入力値を変更
@@ -55,8 +55,8 @@ describe('FormInput', () => {
           label: 'テスト入力',
           modelValue: '',
           type: 'text',
-          error: 'エラーメッセージ'
-        }
+          error: 'エラーメッセージ',
+        },
       });
 
       // エラーメッセージが表示されているか
@@ -73,8 +73,8 @@ describe('FormInput', () => {
           label: 'テスト入力',
           modelValue: '',
           type: 'text',
-          required: true
-        }
+          required: true,
+        },
       });
 
       // 必須マークが表示されているか
@@ -92,8 +92,8 @@ describe('FormInput', () => {
           modelValue: '',
           type: 'textarea',
           placeholder: 'テキストエリアプレースホルダー',
-          rows: 5
-        }
+          rows: 5,
+        },
       });
 
       // テキストエリアが存在するか
@@ -113,8 +113,8 @@ describe('FormInput', () => {
           label: 'テストエリア',
           modelValue: '',
           type: 'textarea',
-          monospace: true
-        }
+          monospace: true,
+        },
       });
 
       // モノスペースクラスが適用されているか
@@ -134,8 +134,8 @@ describe('FormInput', () => {
           modelValue: '',
           type: 'select',
           placeholder: '選択してください',
-          options
-        }
+          options,
+        },
       });
 
       // セレクトボックスが存在するか
@@ -166,8 +166,8 @@ describe('FormInput', () => {
           label: 'テストセレクト',
           modelValue: '',
           type: 'select',
-          options
-        }
+          options,
+        },
       });
 
       // 選択値を変更

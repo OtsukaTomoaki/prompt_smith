@@ -5,7 +5,7 @@ import ActionButtons from '../../../components/ui/ActionButtons.vue';
 // NuxtLinkのモック
 const NuxtLinkStub = {
   template: '<a :href="to"><slot /></a>',
-  props: ['to']
+  props: ['to'],
 };
 
 describe('ActionButtons', () => {
@@ -18,9 +18,9 @@ describe('ActionButtons', () => {
     const wrapper = mount(ActionButtons, {
       global: {
         stubs: {
-          NuxtLink: NuxtLinkStub
-        }
-      }
+          NuxtLink: NuxtLinkStub,
+        },
+      },
     });
 
     // プライマリーボタンが存在するか
@@ -43,13 +43,13 @@ describe('ActionButtons', () => {
         primaryText: 'カスタムボタン',
         cancelText: 'カスタムキャンセル',
         cancelLink: '/custom-link',
-        primaryIcon: 'PlayIcon'
+        primaryIcon: 'PlayIcon',
       },
       global: {
         stubs: {
-          NuxtLink: NuxtLinkStub
-        }
-      }
+          NuxtLink: NuxtLinkStub,
+        },
+      },
     });
 
     // カスタムテキストが表示されているか
@@ -68,13 +68,13 @@ describe('ActionButtons', () => {
     const wrapper = mount(ActionButtons, {
       props: {
         isLoading: true,
-        loadingText: '処理中...'
+        loadingText: '処理中...',
       },
       global: {
         stubs: {
-          NuxtLink: NuxtLinkStub
-        }
-      }
+          NuxtLink: NuxtLinkStub,
+        },
+      },
     });
 
     // ローディングテキストが表示されているか
@@ -89,9 +89,9 @@ describe('ActionButtons', () => {
     const wrapper = mount(ActionButtons, {
       global: {
         stubs: {
-          NuxtLink: NuxtLinkStub
-        }
-      }
+          NuxtLink: NuxtLinkStub,
+        },
+      },
     });
 
     // ボタンをクリック
@@ -105,13 +105,13 @@ describe('ActionButtons', () => {
   it('ローディング中はボタンが無効化される', () => {
     const wrapper = mount(ActionButtons, {
       props: {
-        isLoading: true
+        isLoading: true,
       },
       global: {
         stubs: {
-          NuxtLink: NuxtLinkStub
-        }
-      }
+          NuxtLink: NuxtLinkStub,
+        },
+      },
     });
 
     // ボタンが無効化されているか

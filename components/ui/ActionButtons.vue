@@ -24,29 +24,29 @@ import Button from './button.vue';
 const props = defineProps({
   primaryText: {
     type: String,
-    default: '保存する'
+    default: '保存する',
   },
   cancelText: {
     type: String,
-    default: 'キャンセル'
+    default: 'キャンセル',
   },
   loadingText: {
     type: String,
-    default: '保存中...'
+    default: '保存中...',
   },
   isLoading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   cancelLink: {
     type: String,
-    default: '/'
+    default: '/',
   },
   primaryIcon: {
     type: String,
     default: 'SaveIcon',
-    validator: (value: string) => ['SaveIcon', 'PlayIcon'].includes(value)
-  }
+    validator: (value: string) => ['SaveIcon', 'PlayIcon'].includes(value),
+  },
 });
 
 const emit = defineEmits(['primary-action']);
@@ -54,7 +54,7 @@ const emit = defineEmits(['primary-action']);
 // アイコンコンポーネントのマッピング
 const iconComponents = {
   SaveIcon,
-  PlayIcon
+  PlayIcon,
 };
 
 const handlePrimaryAction = () => {
@@ -64,6 +64,6 @@ const handlePrimaryAction = () => {
 
 <script lang="ts">
 export default {
-  name: 'ActionButtons'
+  name: 'ActionButtons',
 };
 </script>

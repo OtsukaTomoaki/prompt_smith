@@ -7,7 +7,7 @@
       v-model="activeTab"
       :tabs="[
         { id: 'edit', label: '編集', icon: PencilIcon },
-        { id: 'run', label: '実行', icon: PlayIcon }
+        { id: 'run', label: '実行', icon: PlayIcon },
       ]"
     />
 
@@ -32,14 +32,7 @@
           :rows="2"
         />
 
-        <FormInput
-          id="yaml"
-          v-model="yaml"
-          label="YAML設定"
-          type="textarea"
-          :rows="10"
-          monospace
-        />
+        <FormInput id="yaml" v-model="yaml" label="YAML設定" type="textarea" :rows="10" monospace />
       </div>
 
       <!-- プレビュー表示 -->
@@ -69,11 +62,7 @@
     <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
       <!-- 入力フォーム -->
       <div class="lg:w-1/2">
-        <PromptRunSection
-          v-model="input"
-          :output="output"
-          @run="handleRun"
-        />
+        <PromptRunSection v-model="input" :output="output" @run="handleRun" />
       </div>
 
       <!-- プレビュー表示 -->

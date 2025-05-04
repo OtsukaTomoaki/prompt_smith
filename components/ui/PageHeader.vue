@@ -11,13 +11,14 @@ import { PlusIcon, HammerIcon, EyeIcon, PencilIcon } from 'lucide-vue-next';
 const props = defineProps({
   title: {
     type: String,
-    default: ''
+    default: '',
   },
   icon: {
     type: String,
     default: 'PlusIcon',
-    validator: (value: string) => ['PlusIcon', 'HammerIcon', 'EyeIcon', 'PencilIcon'].includes(value)
-  }
+    validator: (value: string) =>
+      ['PlusIcon', 'HammerIcon', 'EyeIcon', 'PencilIcon'].includes(value),
+  },
 });
 
 // アイコンコンポーネントのマッピング
@@ -25,12 +26,12 @@ const iconComponents = {
   PlusIcon,
   HammerIcon,
   EyeIcon,
-  PencilIcon
+  PencilIcon,
 };
 </script>
 
 <script lang="ts">
 export default {
-  name: 'PageHeader'
+  name: 'PageHeader',
 };
 </script>

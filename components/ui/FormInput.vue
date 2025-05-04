@@ -44,52 +44,52 @@ import { computed } from 'vue';
 const props = defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   modelValue: {
     type: [String, Number],
-    default: ''
+    default: '',
   },
   label: {
     type: String,
-    required: true
+    required: true,
   },
   type: {
     type: String,
     default: 'text',
-    validator: (value: string) => ['text', 'textarea', 'select'].includes(value)
+    validator: (value: string) => ['text', 'textarea', 'select'].includes(value),
   },
   placeholder: {
     type: String,
-    default: ''
+    default: '',
   },
   required: {
     type: Boolean,
-    default: false
+    default: false,
   },
   error: {
     type: String,
-    default: ''
+    default: '',
   },
   rows: {
     type: Number,
-    default: 3
+    default: 3,
   },
   options: {
     type: Array as () => string[],
-    default: () => []
+    default: () => [],
   },
   monospace: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
 const inputValue = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value),
 });
 
 const fontClass = computed(() => {
@@ -99,6 +99,6 @@ const fontClass = computed(() => {
 
 <script lang="ts">
 export default {
-  name: 'FormInput'
+  name: 'FormInput',
 };
 </script>

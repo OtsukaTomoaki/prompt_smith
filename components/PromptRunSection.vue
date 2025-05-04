@@ -19,10 +19,7 @@
       </Button>
     </div>
 
-    <div
-      v-if="output"
-      class="border p-4 rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-    >
+    <div v-if="output" class="border p-4 rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
       <h2 class="font-semibold mb-2">{{ outputLabel }}</h2>
       <pre class="text-sm whitespace-pre-wrap">{{ output }}</pre>
     </div>
@@ -37,39 +34,39 @@ import Button from './ui/button.vue';
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: '',
   },
   output: {
     type: String,
-    default: ''
+    default: '',
   },
   inputLabel: {
     type: String,
-    default: '入力'
+    default: '入力',
   },
   outputLabel: {
     type: String,
-    default: '💬 出力結果:'
+    default: '💬 出力結果:',
   },
   placeholder: {
     type: String,
-    default: 'プロンプトに渡す入力を入力してください'
+    default: 'プロンプトに渡す入力を入力してください',
   },
   runButtonText: {
     type: String,
-    default: '実行'
+    default: '実行',
   },
   isRunning: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'run']);
 
 const inputValue = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value),
 });
 
 const handleRun = () => {
@@ -79,6 +76,6 @@ const handleRun = () => {
 
 <script lang="ts">
 export default {
-  name: 'PromptRunSection'
+  name: 'PromptRunSection',
 };
 </script>

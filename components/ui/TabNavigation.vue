@@ -28,12 +28,12 @@ export interface Tab {
 const props = defineProps({
   modelValue: {
     type: String,
-    required: true
+    required: true,
   },
   tabs: {
     type: Array as () => Tab[],
-    required: true
-  }
+    required: true,
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -45,6 +45,6 @@ const updateActiveTab = (tabId: string) => {
 
 <script lang="ts">
 export default {
-  name: 'TabNavigation'
+  name: 'TabNavigation',
 };
 </script>

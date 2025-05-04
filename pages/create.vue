@@ -77,24 +77,6 @@
           <p v-if="errors.model" class="mt-1 text-sm text-red-500">{{ errors.model }}</p>
         </div>
 
-        <!-- 送信ボタン -->
-        <div class="flex gap-4">
-          <Button type="submit" :disabled="isSubmitting">
-            <SaveIcon v-if="!isSubmitting" class="w-4 h-4 mr-2" />
-            <span
-              v-if="isSubmitting"
-              class="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></span>
-            {{ isSubmitting ? '保存中...' : '保存する' }}
-          </Button>
-          <NuxtLink
-            to="/"
-            class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          >
-            キャンセル
-          </NuxtLink>
-        </div>
-
         <!-- エラーメッセージ -->
         <div
           v-if="submitError"

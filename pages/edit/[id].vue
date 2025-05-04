@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
+  <div class="min-h-screen max-w-6xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <h1 class="text-2xl font-bold flex items-center gap-2 mb-4">
       <HammerIcon class="w-5 h-5" /> プロンプト編集
     </h1>
@@ -18,17 +18,6 @@
         <PencilIcon class="w-4 h-4 inline-block mr-1" /> 編集
       </button>
       <button
-        @click="activeTab = 'preview'"
-        class="px-4 py-2 font-medium"
-        :class="
-          activeTab === 'preview'
-            ? 'border-b-2 border-blue-500 text-blue-500'
-            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-        "
-      >
-        <EyeIcon class="w-4 h-4 inline-block mr-1" /> プレビュー
-      </button>
-      <button
         @click="activeTab = 'run'"
         class="px-4 py-2 font-medium"
         :class="
@@ -41,19 +30,10 @@
       </button>
     </div>
 
-    <!-- プレビュー表示 -->
-    <div v-if="activeTab === 'preview'" class="mb-6">
-      <PromptPreview
-        :title="extractTitle()"
-        :description="extractDescription()"
-        :prompt_text="extractPromptText()"
-        :model="extractModel()"
-        :lastEdited="getCurrentDateTime()"
-      />
-    </div>
-
-    <!-- 編集フォーム -->
-    <div v-if="activeTab === 'edit'">
+    <!-- 編集画面（分割表示） -->
+    <div v-if="activeTab === 'edit'" class="flex flex-col lg:flex-row gap-6">
+      <!-- 編集フォーム -->
+      <div class="lg:w-1/2 space-y-4">
       <div class="mb-4">
         <label class="block mb-2 font-medium">タイトル</label>
         <input
@@ -96,33 +76,67 @@
           キャンセル
         </NuxtLink>
       </div>
+      </div>
+
+      <!-- プレビュー表示 -->
+      <div class="lg:w-1/2 sticky top-6 self-start">
+        <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-2 flex items-center">
+          <EyeIcon class="w-4 h-4 mr-2 text-blue-500" />
+          <span class="font-medium">リアルタイムプレビュー</span>
+        </div>
+        <PromptPreview
+          :title="extractTitle()"
+          :description="extractDescription()"
+          :prompt_text="extractPromptText()"
+          :model="extractModel()"
+          :lastEdited="getCurrentDateTime()"
+        />
+      </div>
     </div>
 
     <!-- 実行画面 -->
-    <div v-if="activeTab === 'run'">
-      <label class="block mb-2 font-medium">入力</label>
-      <textarea
-        v-model="input"
-        rows="4"
-        class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 font-mono text-sm rounded mb-4"
-        placeholder="プロンプトに渡す入力を入力してください"
-      ></textarea>
+    <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
+      <!-- 入力フォーム -->
+      <div class="lg:w-1/2 space-y-4">
+        <label class="block mb-2 font-medium">入力</label>
+        <textarea
+          v-model="input"
+          rows="4"
+          class="w-full border dark:border-gray-700 dark:bg-gray-800 p-3 font-mono text-sm rounded mb-4"
+          placeholder="プロンプトに渡す入力を入力してください"
+        ></textarea>
 
-      <div class="flex gap-4 mb-4">
-        <button
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
-          @click="handleRun"
+        <div class="flex gap-4 mb-4">
+          <button
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-1"
+            @click="handleRun"
+          >
+            <PlayIcon class="w-4 h-4" /> 実行
+          </button>
+        </div>
+
+        <div
+          v-if="output"
+          class="border p-4 rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         >
-          <PlayIcon class="w-4 h-4" /> 実行
-        </button>
+          <h2 class="font-semibold mb-2">💬 出力結果:</h2>
+          <pre class="text-sm whitespace-pre-wrap">{{ output }}</pre>
+        </div>
       </div>
 
-      <div
-        v-if="output"
-        class="border p-4 rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-      >
-        <h2 class="font-semibold mb-2">💬 出力結果:</h2>
-        <pre class="text-sm whitespace-pre-wrap">{{ output }}</pre>
+      <!-- プレビュー表示 -->
+      <div class="lg:w-1/2 sticky top-6 self-start">
+        <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-2 flex items-center">
+          <EyeIcon class="w-4 h-4 mr-2 text-blue-500" />
+          <span class="font-medium">プロンプトプレビュー</span>
+        </div>
+        <PromptPreview
+          :title="extractTitle()"
+          :description="extractDescription()"
+          :prompt_text="extractPromptText()"
+          :model="extractModel()"
+          :lastEdited="getCurrentDateTime()"
+        />
       </div>
     </div>
   </div>
@@ -133,7 +147,7 @@ import { ref, onMounted } from 'vue';
 import { HammerIcon, PlayIcon, SaveIcon, PencilIcon, EyeIcon } from 'lucide-vue-next';
 import PromptPreview from '../../components/PromptPreview.vue';
 
-// アクティブなタブ（編集/プレビュー/実行）
+// アクティブなタブ（編集/実行）
 const activeTab = ref('edit');
 
 // フォームデータ

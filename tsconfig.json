@@ -4,6 +4,11 @@
   "compilerOptions": {
     "typeRoots": ["./types", "./node_modules/@types"],
     "moduleResolution": "node",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@/*": ["./*"],
+      "#app": ["./node_modules/nuxt/dist/app/index"]
+    }
   }
 }

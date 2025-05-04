@@ -1,14 +1,5 @@
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
-    <!-- ユーザーメニュー -->
-    <div
-      v-if="showUserMenu"
-      class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md"
-    >
-      <p class="text-sm">{{ user?.email }}</p>
-      <button @click="logout" class="mt-2 text-red-500 hover:underline text-xs">Logout</button>
-    </div>
-
     <NuxtLink
       to="/create"
       class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -31,8 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import PromptCard from '@/components/PromptCard.vue';
-
 const samplePrompts = [
   {
     id: '1',

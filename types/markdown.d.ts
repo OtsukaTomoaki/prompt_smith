@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it';
 
+// Nuxt 3の型定義
 declare module '#app' {
   interface NuxtApp {
     $md: MarkdownIt;

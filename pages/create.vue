@@ -1,10 +1,58 @@
 <template>
   <div class="min-h-screen max-w-5xl mx-auto dark:bg-gray-900 dark:text-white p-6">
-    <h1 class="text-2xl font-bold flex items-center gap-2 mb-6">
+    <h1 class="text-2xl font-bold flex items-center gap-2 mb-4">
       <PlusIcon class="w-5 h-5" /> プロンプト作成
     </h1>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <!-- 表示モード切り替えタブ -->
+    <div class="flex border-b dark:border-gray-700 mb-6">
+      <button
+        @click="activeTab = 'edit'"
+        class="px-4 py-2 font-medium"
+        :class="activeTab === 'edit' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        <PencilIcon class="w-4 h-4 inline-block mr-1" /> 編集
+      </button>
+      <button
+        @click="activeTab = 'preview'"
+        class="px-4 py-2 font-medium"
+        :class="activeTab === 'preview' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        <EyeIcon class="w-4 h-4 inline-block mr-1" /> プレビュー
+      </button>
+    </div>
+
+    <!-- プレビュー表示 -->
+    <div v-if="activeTab === 'preview'" class="mb-6">
+      <PromptPreview
+        :title="form.title"
+        :description="form.description"
+        :prompt_text="form.prompt_text"
+        :model="form.model"
+        :lastEdited="getCurrentDateTime()"
+      />
+
+      <!-- 送信ボタン（プレビュー時も表示） -->
+      <div class="flex gap-4 mt-6">
+        <Button type="button" @click="handleSubmit" :disabled="isSubmitting">
+          <SaveIcon v-if="!isSubmitting" class="w-4 h-4 mr-2" />
+          <span
+            v-if="isSubmitting"
+            class="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></span>
+          {{ isSubmitting ? '保存中...' : '保存する' }}
+        </Button>
+        <NuxtLink
+          to="/"
+          class="px-4 py-2 border dark:border-gray-700 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        >
+          キャンセル
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- 編集フォーム -->
+    <form v-if="activeTab === 'edit'" @submit.prevent="handleSubmit" class="space-y-6">
       <!-- タイトル入力欄 -->
       <div>
         <label for="title" class="block mb-2 font-medium"
@@ -98,10 +146,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { PlusIcon, SaveIcon } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
+import { PlusIcon, SaveIcon, PencilIcon, EyeIcon } from 'lucide-vue-next';
 import Button from '../components/ui/button.vue';
+import PromptPreview from '../components/PromptPreview.vue';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+// アクティブなタブ（編集/プレビュー）
+const activeTab = ref('edit');
+
+// 現在の日時を取得する関数
+const getCurrentDateTime = () => {
+  const now = new Date();
+  return now.toLocaleString('ja-JP');
+};
 
 // バリデーションロジックをインポート
 const {

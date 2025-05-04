@@ -4,7 +4,9 @@
       <h3 class="text-lg font-semibold">{{ title || '無題のプロンプト' }}</h3>
       <p class="text-sm text-gray-400">{{ description || '説明なし' }}</p>
 
-      <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800/50 rounded-md font-mono text-sm overflow-auto">
+      <div
+        class="mt-4 p-3 bg-gray-100 dark:bg-gray-800/50 rounded-md font-mono text-sm overflow-auto"
+      >
         <pre class="whitespace-pre-wrap">{{ prompt_text || 'プロンプト本文なし' }}</pre>
       </div>
 
@@ -35,6 +37,6 @@ defineProps<{
 
 <script lang="ts">
 export default {
-  name: 'PromptPreview'
+  name: 'PromptPreview',
 };
 </script>

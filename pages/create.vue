@@ -9,14 +9,22 @@
       <button
         @click="activeTab = 'edit'"
         class="px-4 py-2 font-medium"
-        :class="activeTab === 'edit' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+        :class="
+          activeTab === 'edit'
+            ? 'border-b-2 border-blue-500 text-blue-500'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+        "
       >
         <PencilIcon class="w-4 h-4 inline-block mr-1" /> 編集
       </button>
       <button
         @click="activeTab = 'preview'"
         class="px-4 py-2 font-medium"
-        :class="activeTab === 'preview' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+        :class="
+          activeTab === 'preview'
+            ? 'border-b-2 border-blue-500 text-blue-500'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+        "
       >
         <EyeIcon class="w-4 h-4 inline-block mr-1" /> プレビュー
       </button>

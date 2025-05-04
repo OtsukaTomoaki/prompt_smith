@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Run tests
-        run: npm test
+        run: npx vitest run
 
       - name: Run Prettier check
         run: npx prettier --check .

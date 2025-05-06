@@ -9,7 +9,8 @@ const stubs = {
     props: ['to'],
   },
   PromptCard: {
-    template: '<div class="prompt-card-stub" :title="title" :description="description" :model="model" :last-edited="lastEdited" :link="link"></div>',
+    template:
+      '<div class="prompt-card-stub" :title="title" :description="description" :model="model" :last-edited="lastEdited" :link="link"></div>',
     props: ['title', 'description', 'model', 'lastEdited', 'link'],
   },
   PlusIcon: {

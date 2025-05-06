@@ -96,20 +96,19 @@ import PromptRunSection from '../../components/PromptRunSection.vue';
 // アクティブなタブ（編集/実行）
 const activeTab = ref('edit');
 
+// プロンプトAPI
+const { getPromptById, updatePrompt, error: apiError, isLoading } = usePromptsApi();
+
 // フォームデータ
-const title = ref('テストプロンプト');
-const description = ref('複雑な概念を説明するためのプロンプト');
-const yaml = ref(`model: gpt-4
-temperature: 0.7
-max_tokens: 500
-prompt: |
-  You are an expert at explaining complex topics.
-
-  Please explain the following concept in simple terms:
-  {{input}}`);
-
+const title = ref('');
+const description = ref('');
+const yaml = ref('');
 const input = ref('');
 const output = ref('');
+
+// ルートパラメータからIDを取得
+const route = useRoute();
+const promptId = route.params.id as string;
 
 // YAMLからデータを抽出する関数
 const extractModel = () => {
@@ -147,16 +146,46 @@ const handleRun = () => {
 };
 
 // 保存処理
-const handleSave = () => {
-  // 保存処理（現在はモック）
-  alert('保存しました（モック）');
+const handleSave = async () => {
+  try {
+    const result = await updatePrompt(promptId, {
+      title: title.value,
+      description: description.value,
+      prompt_text: extractPromptText(),
+      model: extractModel(),
+    });
+
+    if (apiError.value) {
+      alert(`保存に失敗しました: ${apiError.value}`);
+    } else if (result) {
+      alert('保存しました');
+    }
+  } catch (error) {
+    console.error('保存エラー:', error);
+    alert('予期せぬエラーが発生しました。もう一度お試しください。');
+  }
 };
 
 // ページ読み込み時の処理
-onMounted(() => {
-  // IDからデータを取得する処理（現在はモック）
-  const id = useRoute().params.id;
-  console.log(`ID: ${id}のプロンプトを読み込みます`);
+onMounted(async () => {
+  try {
+    // IDからデータを取得
+    const prompt = await getPromptById(promptId);
+
+    if (prompt) {
+      title.value = prompt.title;
+      description.value = prompt.description || '';
+
+      // YAMLを構築
+      yaml.value = `model: ${prompt.model}
+temperature: 0.7
+max_tokens: 500
+prompt: |
+  ${prompt.prompt_text}`;
+    }
+  } catch (error) {
+    console.error('データ取得エラー:', error);
+  }
 });
 </script>
 

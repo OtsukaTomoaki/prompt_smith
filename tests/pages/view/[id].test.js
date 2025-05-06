@@ -21,12 +21,15 @@ beforeEach(() => {
 });
 
 describe('ViewPage', () => {
-  it('コンポーネントが正しくレンダリングされる', () => {
+  it('コンポーネントが正しくレンダリングされる', async () => {
     const wrapper = mount(ViewPage, {
       global: {
         stubs,
       },
     });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
 
     // PageHeaderが存在するか
     expect(wrapper.findComponent({ name: 'PageHeader' }).exists()).toBe(true);

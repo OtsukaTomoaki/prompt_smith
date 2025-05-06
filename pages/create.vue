@@ -120,8 +120,8 @@ onMounted(() => {
   initializeDefaultModel();
 });
 
-// Supabaseクライアント
-const { $supabase } = useNuxtApp();
+// プロンプトAPI
+const { createPrompt, error: apiError, isLoading } = usePromptsApi();
 
 // フォーム送信処理
 const handleSubmit = async () => {
@@ -167,28 +167,17 @@ const handleSubmit = async () => {
     }
 
     // 本番環境用の処理
-    // ログイン中のユーザー情報を取得
-    const { data: userData } = await ($supabase as SupabaseClient).auth.getUser();
-
-    if (!userData.user) {
-      submitError.value = 'ユーザー情報の取得に失敗しました。再ログインしてください。';
-      isSubmitting.value = false;
-      return;
-    }
-
-    // Supabaseにデータを送信
-    const { error } = await ($supabase as SupabaseClient).from('prompts').insert({
+    // APIを使用してプロンプトを作成
+    const result = await createPrompt({
       title: form.title,
       description: form.description || null,
       prompt_text: form.prompt_text,
       model: form.model,
-      user_id: userData.user.id,
     });
 
-    if (error) {
-      console.error('保存エラー:', error);
-      submitError.value = `保存に失敗しました: ${error.message}`;
-    } else {
+    if (apiError.value) {
+      submitError.value = apiError.value;
+    } else if (result) {
       // 成功時はトップページにリダイレクト
       navigateTo('/');
     }

@@ -28,12 +28,15 @@ beforeEach(() => {
 });
 
 describe('EditPage', () => {
-  it('コンポーネントが正しくレンダリングされる', () => {
+  it('コンポーネントが正しくレンダリングされる', async () => {
     const wrapper = mount(EditPage, {
       global: {
         stubs,
       },
     });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
 
     // 編集用のdiv要素が存在するか
     expect(wrapper.find('.lg\\:w-1\\/2').exists()).toBe(true);

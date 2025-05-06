@@ -60,12 +60,15 @@ beforeEach(() => {
 });
 
 describe('CreatePage', () => {
-  it('コンポーネントが正しくレンダリングされる', () => {
+  it('コンポーネントが正しくレンダリングされる', async () => {
     const wrapper = mount(CreatePage, {
       global: {
         stubs,
       },
     });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
 
     // フォームが存在するか
     expect(wrapper.find('form').exists()).toBe(true);

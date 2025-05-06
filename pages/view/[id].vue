@@ -22,24 +22,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { UserIcon } from 'lucide-vue-next';
 import PageHeader from '../../components/ui/PageHeader.vue';
 import PromptRunSection from '../../components/PromptRunSection.vue';
 
-const yaml = `model: gpt-4
-temperature: 0.7
-max_tokens: 500
-prompt: |
-  You are an expert at explaining complex topics.
+// プロンプトAPI
+const { getPromptById, error: apiError, isLoading } = usePromptsApi();
 
-  Please explain the following concept in simple terms:
-  {{input}}`;
+// ルートパラメータからIDを取得
+const route = useRoute();
+const promptId = route.params.id as string;
 
+// データ
+const prompt = ref<any>(null);
+const yaml = ref('');
 const input = ref('');
 const output = ref('');
 
+// プロンプトを実行
 const handleRun = () => {
+  // 入力をプロンプトに適用
+  const promptTemplate = prompt.value?.prompt_text || '';
+  const filledPrompt = promptTemplate.replace('{{input}}', input.value);
+
+  // 実際のAPIコールはここで行う（現在はモック）
   output.value = `This is a simulated response that would come from the AI model.`;
 };
+
+// ページ読み込み時の処理
+onMounted(async () => {
+  try {
+    // IDからデータを取得
+    const result = await getPromptById(promptId);
+
+    if (result) {
+      prompt.value = result;
+
+      // YAMLを構築
+      yaml.value = `model: ${result.model}
+temperature: 0.7
+max_tokens: 500
+prompt: |
+  ${result.prompt_text}`;
+    }
+  } catch (error) {
+    console.error('データ取得エラー:', error);
+  }
+});
 </script>

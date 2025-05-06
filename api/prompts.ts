@@ -49,13 +49,17 @@ export class PromptsApi {
     const user = await this.getCurrentUser();
 
     // Supabaseにデータを送信
-    const { data, error } = await this.supabase.from('prompts').insert({
-      title: prompt.title,
-      description: prompt.description || null,
-      prompt_text: prompt.prompt_text,
-      model: prompt.model,
-      user_id: user.id,
-    }).select().single();
+    const { data, error } = await this.supabase
+      .from('prompts')
+      .insert({
+        title: prompt.title,
+        description: prompt.description || null,
+        prompt_text: prompt.prompt_text,
+        model: prompt.model,
+        user_id: user.id,
+      })
+      .select()
+      .single();
 
     if (error) {
       throw new Error(`プロンプトの作成に失敗しました: ${error.message}`);
@@ -92,11 +96,7 @@ export class PromptsApi {
    * @returns プロンプト
    */
   async getPromptById(id: string) {
-    const { data, error } = await this.supabase
-      .from('prompts')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await this.supabase.from('prompts').select('*').eq('id', id).single();
 
     if (error) {
       throw new Error(`プロンプトの取得に失敗しました: ${error.message}`);
@@ -131,10 +131,7 @@ export class PromptsApi {
    * @param id プロンプトID
    */
   async deletePrompt(id: string) {
-    const { error } = await this.supabase
-      .from('prompts')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.supabase.from('prompts').delete().eq('id', id);
 
     if (error) {
       throw new Error(`プロンプトの削除に失敗しました: ${error.message}`);

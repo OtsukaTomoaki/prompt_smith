@@ -61,7 +61,7 @@ onMounted(async () => {
     const result = await getPrompts();
 
     if (result) {
-      prompts.value = result.map(prompt => ({
+      prompts.value = result.map((prompt) => ({
         id: prompt.id,
         title: prompt.title,
         description: prompt.description || '',

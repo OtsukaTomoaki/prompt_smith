@@ -41,16 +41,13 @@ export function usePromptsApi() {
     createPrompt: (prompt: Parameters<typeof api.createPrompt>[0]) =>
       handleApiCall(() => api.createPrompt(prompt)),
 
-    getPrompts: () =>
-      handleApiCall(() => api.getPrompts()),
+    getPrompts: () => handleApiCall(() => api.getPrompts()),
 
-    getPromptById: (id: string) =>
-      handleApiCall(() => api.getPromptById(id)),
+    getPromptById: (id: string) => handleApiCall(() => api.getPromptById(id)),
 
     updatePrompt: (id: string, prompt: Parameters<typeof api.updatePrompt>[1]) =>
       handleApiCall(() => api.updatePrompt(id, prompt)),
 
-    deletePrompt: (id: string) =>
-      handleApiCall(() => api.deletePrompt(id)),
+    deletePrompt: (id: string) => handleApiCall(() => api.deletePrompt(id)),
   };
 }

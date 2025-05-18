@@ -106,25 +106,25 @@ CI configuration file: `.github/workflows/lint.yml`
 
 Let's build high-quality and maintainable software together! 🚀
 
-
 ---
 
 # Supabase Client
 
 This project uses Supabase as a backend service. The Supabase client is configured in the `plugins/supabase.js` file.
+
 ```javascript
-import { createClient } from '@supabase/supabase-js'
-import { useRuntimeConfig } from '#app'
-import { defineNuxtPlugin } from '#app'
+import { createClient } from '@supabase/supabase-js';
+import { useRuntimeConfig } from '#app';
+import { defineNuxtPlugin } from '#app';
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig()
-  const supabaseUrl = config.public.supabaseUrl
-  const supabaseKey = config.public.supabaseKey
+  const config = useRuntimeConfig();
+  const supabaseUrl = config.public.supabaseUrl;
+  const supabaseKey = config.public.supabaseKey;
 
-  const supabaseClient = createClient(supabaseUrl, supabaseKey)
+  const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-  nuxtApp.provide('supabase', supabaseClient)
-})
+  nuxtApp.provide('supabase', supabaseClient);
+});
 ```
 
 ## migration

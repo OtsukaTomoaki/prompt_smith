@@ -16,6 +16,7 @@
 defineOptions({
   name: 'Toast',
 });
+import { computed } from 'vue';
 import { CheckCircleIcon, XCircleIcon, AlertCircleIcon } from 'lucide-vue-next';
 
 const props = defineProps({

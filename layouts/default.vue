@@ -69,7 +69,7 @@ const toggleUserMenu = () => {
     const rect = userIconBtn.value.getBoundingClientRect();
     menuPosition.value = {
       top: `${rect.bottom + 8}px`,
-      right: `${window.innerWidth - rect.right}px`
+      right: `${window.innerWidth - rect.right}px`,
     };
   }
 };

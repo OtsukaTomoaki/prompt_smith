@@ -123,6 +123,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 - Googleの認証は.env.localファイルに設定された以下の環境変数を使用して行います。
   - ユーザ：`LOCAL_GOOGLE_TEST_EMAIL`
   - パスワード：`LOCAL_GOOGLE_TEST_PASSWORD`
+
 ---
 
 以上のルールに従って Roo Codeでコード生成を行ってください。

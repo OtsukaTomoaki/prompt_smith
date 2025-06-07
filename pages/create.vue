@@ -2,6 +2,14 @@
   <div class="min-h-screen max-w-6xl mx-auto dark:bg-gray-900 dark:text-white p-6">
     <PageHeader icon="PlusIcon" title="プロンプト作成" />
 
+    <!-- ローディングオーバーレイ -->
+    <div
+      v-if="isSubmitting"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
+    >
+      <LoadingSpinner color="white" size="lg" />
+    </div>
+
     <!-- 分割表示レイアウト -->
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- 編集フォーム -->
@@ -86,6 +94,9 @@
       primaryIcon="SaveIcon"
       @primary-action="handleSubmit"
     />
+
+    <!-- トースト通知 -->
+    <Toast :visible="toast.visible.value" :type="toast.type.value" :message="toast.message.value" />
   </div>
 </template>
 
@@ -96,7 +107,9 @@ import PromptPreview from '../components/PromptPreview.vue';
 import PageHeader from '../components/ui/PageHeader.vue';
 import FormInput from '../components/ui/FormInput.vue';
 import ActionButtons from '../components/ui/ActionButtons.vue';
+// Nuxt 3はコンポーネントを自動インポートするため、明示的なインポートは不要
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { useToast, type ToastType } from '../composables/useToast';
 
 // 現在の日時を取得する関数
 const getCurrentDateTime = () => {
@@ -115,6 +128,9 @@ const {
   initializeDefaultModel,
 } = usePromptValidation();
 
+// トースト通知の状態
+const toast = useToast();
+
 // テスト環境では自動的にモデルを選択
 onMounted(() => {
   initializeDefaultModel();
@@ -122,6 +138,23 @@ onMounted(() => {
 
 // プロンプトAPI
 const { createPrompt, error: apiError, isLoading } = usePromptsApi();
+
+// エラータイプに応じたメッセージを取得
+const getErrorMessage = (error: any): { message: string; type: string } => {
+  if (typeof error === 'string') {
+    if (error.includes('認証') || error.includes('ログイン')) {
+      return { message: error, type: 'auth' };
+    } else if (error.includes('ネットワーク') || error.includes('接続')) {
+      return { message: error, type: 'network' };
+    }
+    return { message: error, type: 'unknown' };
+  }
+
+  return {
+    message: '予期せぬエラーが発生しました。もう一度お試しください。',
+    type: 'unknown',
+  };
+};
 
 // フォーム送信処理
 const handleSubmit = async () => {
@@ -134,39 +167,6 @@ const handleSubmit = async () => {
   submitError.value = '';
 
   try {
-    // テスト環境用の処理
-    if (process.env.NODE_ENV === 'development') {
-      console.log('テスト環境のため、モック処理を実行します');
-
-      try {
-        // テスト環境ではSupabaseへの接続をモックする
-        console.log('送信データ:', {
-          title: form.title,
-          description: form.description || null,
-          prompt_text: form.prompt_text,
-          model: form.model,
-          user_id: 'test-user-id',
-        });
-
-        // 成功をシミュレート
-        console.log('保存成功（モック）');
-
-        // 少し待機してからリダイレクト
-        setTimeout(() => {
-          console.log('トップページへリダイレクトします');
-          // navigateToの代わりにwindow.location.hrefを使用
-          window.location.href = '/';
-        }, 1000);
-
-        return;
-      } catch (mockError) {
-        console.error('モック処理エラー:', mockError);
-        submitError.value = `テスト環境でのエラー: ${mockError instanceof Error ? mockError.message : String(mockError)}`;
-        return;
-      }
-    }
-
-    // 本番環境用の処理
     // APIを使用してプロンプトを作成
     const result = await createPrompt({
       title: form.title,
@@ -176,14 +176,22 @@ const handleSubmit = async () => {
     });
 
     if (apiError.value) {
-      submitError.value = apiError.value;
+      const { message, type } = getErrorMessage(apiError.value);
+      submitError.value = message;
+      toast.showToast(`エラー: ${message}`, 'error');
     } else if (result) {
-      // 成功時はトップページにリダイレクト
-      navigateTo('/');
+      // 成功時のトースト表示
+      toast.showToast('プロンプトが正常に保存されました', 'success');
+
+      // 少し待機してからリダイレクト
+      setTimeout(() => {
+        navigateTo('/');
+      }, 1500);
     }
   } catch (error) {
     console.error('エラー:', error);
     submitError.value = '予期せぬエラーが発生しました。もう一度お試しください。';
+    toast.showToast('エラーが発生しました。もう一度お試しください。', 'error');
   } finally {
     isSubmitting.value = false;
   }

@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@nuxt/content": "^3.4.0",

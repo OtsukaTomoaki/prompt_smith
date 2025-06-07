@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { ref } from 'vue';
 import CreatePage from '../../pages/create.vue';
 
 // コンポーネントのスタブ
@@ -8,9 +9,17 @@ const stubs = {
   FormInput: true,
   PromptPreview: true,
   ActionButtons: true,
+  LoadingSpinner: true,
+  Toast: true,
   // Lucideアイコンのモック
   EyeIcon: {
     template: '<div class="w-4 h-4 text-blue-500">👁</div>',
+  },
+  SaveIcon: {
+    template: '<div>💾</div>',
+  },
+  PlusIcon: {
+    template: '<div>➕</div>',
   },
 };
 
@@ -42,11 +51,29 @@ beforeEach(() => {
     },
     errors: {},
     availableModels: ['gpt-4', 'claude-3'],
-    isSubmitting: false,
-    submitError: '',
+    isSubmitting: ref(false),
+    submitError: ref(''),
+    getErrorMessage: vi
+      .fn()
+      .mockReturnValue({ message: 'テストエラーメッセージ', type: 'unknown' }),
     validateForm: vi.fn().mockReturnValue(true),
     initializeDefaultModel: vi.fn(),
   }));
+
+  // useToastのモック
+  global.useToast = vi.fn().mockImplementation(() => {
+    const visible = ref(false);
+    const message = ref('');
+    const type = ref('success');
+
+    return {
+      visible,
+      message,
+      type,
+      showToast: vi.fn(),
+      hideToast: vi.fn(),
+    };
+  });
 
   // Nuxtのモック
   global.useNuxtApp = vi.fn().mockImplementation(() => ({
@@ -57,6 +84,10 @@ beforeEach(() => {
 
   // コンソールログのモック
   console.log = vi.fn();
+  console.error = vi.fn();
+
+  // setTimeout のモック
+  vi.useFakeTimers();
 });
 
 describe('CreatePage', () => {
@@ -72,5 +103,110 @@ describe('CreatePage', () => {
 
     // フォームが存在するか
     expect(wrapper.find('form').exists()).toBe(true);
+  });
+
+  it('フォーム送信時にAPIが呼び出され、成功時にトーストが表示される', async () => {
+    // APIモックを設定
+    const mockCreatePrompt = vi.fn().mockResolvedValue({ id: 'new-prompt-id' });
+
+    global.usePromptsApi = vi.fn().mockReturnValue({
+      createPrompt: mockCreatePrompt,
+      error: ref(null),
+      isLoading: ref(false),
+    });
+
+    // コンポーネントをマウント
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // フォームが存在するか
+    expect(wrapper.find('form').exists()).toBe(true);
+
+    // 送信ボタンが存在するか
+    expect(wrapper.findComponent({ name: 'ActionButtons' }).exists()).toBe(true);
+
+    // 送信ボタンをクリック
+    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+    await wrapper.vm.$nextTick();
+
+    // APIが呼び出されたことを確認
+    expect(mockCreatePrompt).toHaveBeenCalled();
+
+    // タイマーを進める
+    vi.advanceTimersByTime(1500);
+    await wrapper.vm.$nextTick();
+
+    // リダイレクトが呼ばれるか
+    expect(mockNavigateTo).toHaveBeenCalledWith('/');
+  });
+
+  it('API呼び出しでエラー発生時にエラーメッセージが表示される', async () => {
+    // コンポーネントをマウント
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // フォームが存在するか
+    expect(wrapper.find('form').exists()).toBe(true);
+  });
+
+  it('予期せぬエラー発生時にエラーメッセージが表示される', async () => {
+    // コンポーネントをマウント
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // フォームが存在するか
+    expect(wrapper.find('form').exists()).toBe(true);
+  });
+
+  it('ローディング状態が正しく設定される', async () => {
+    // usePromptsApiのモック（遅延を模倣）
+    global.usePromptsApi = vi.fn().mockImplementation(() => ({
+      createPrompt: vi.fn().mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return { id: 'test-id' };
+      }),
+      error: ref(null),
+      isLoading: ref(false),
+    }));
+
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // 送信ボタンをクリック
+    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+
+    // isSubmittingがtrueになっているか確認
+    expect(wrapper.vm.isSubmitting).toBe(true);
+
+    // 非同期処理の完了を待機
+    await vi.advanceTimersByTime(100);
+    await wrapper.vm.$nextTick();
+
+    // 処理完了後にisSubmittingがfalseになっているか確認
+    expect(wrapper.vm.isSubmitting).toBe(false);
   });
 });

@@ -179,3 +179,223 @@
 
 5. **テスト強化**
    - 品質と安定性の確保
+
+## 6. Supabaseへのプロンプト登録実装計画
+
+現在の実装状況を踏まえ、Supabaseにプロンプトを登録するための実装計画を以下に示します。
+
+### 6.1 現状分析
+
+#### 実装済みの機能
+
+- プロンプト作成フォーム（`pages/create.vue`）
+- バリデーションロジック（`composables/usePromptValidation.ts`）
+- API通信処理（`api/prompts.ts`の`PromptsApi`クラス）
+- データベーススキーマ（`supabase/migrations/002_update_prompts.sql`）
+- 認証ミドルウェア（`middleware/auth.global.ts`）
+
+#### 課題
+
+- 開発環境ではモック処理を行っており、実際のSupabaseへの登録は行われていない
+- エラーハンドリングが不十分
+- ユーザーフィードバックが不足
+- テストが不足
+
+### 6.2 実装ステップ
+
+#### ステップ1: 開発環境でのSupabase接続設定
+
+1. ✅`.env`ファイルの作成・更新
+
+   ```
+   SUPABASE_URL=https://your-project-url.supabase.co
+   SUPABASE_KEY=your-anon-key
+   ```
+
+2. `plugins/supabase.ts`の確認・更新
+
+   - 開発環境でも実際のSupabaseに接続するよう修正
+
+3. `pages/create.vue`の修正
+   - 開発環境用のモック処理を削除または条件分岐を修正
+
+#### ステップ2: エラーハンドリングの強化
+
+1. `api/prompts.ts`の`createPrompt`メソッドのエラーハンドリング強化
+
+   - より詳細なエラーメッセージ
+   - エラータイプの分類（ネットワークエラー、認証エラー、バリデーションエラーなど）
+
+2. `pages/create.vue`のエラー表示改善
+   - エラータイプに応じたメッセージ表示
+   - リトライ機能の追加
+
+#### ステップ3: ユーザーフィードバックの強化
+
+1. トースト通知コンポーネントの作成（`components/ui/Toast.vue`）
+
+   ```vue
+   <template>
+     <div v-if="visible" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg" :class="typeClass">
+       <div class="flex items-center">
+         <component :is="icon" class="w-5 h-5 mr-2" />
+         <span>{{ message }}</span>
+       </div>
+     </div>
+   </template>
+
+   <script setup lang="ts">
+   import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon } from 'lucide-vue-next';
+
+   const props = defineProps({
+     visible: Boolean,
+     type: {
+       type: String,
+       default: 'success',
+       validator: (value: string) => ['success', 'error', 'warning'].includes(value),
+     },
+     message: String,
+   });
+
+   const typeClass = computed(() => {
+     switch (props.type) {
+       case 'success':
+         return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+       case 'error':
+         return 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
+       case 'warning':
+         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
+       default:
+         return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
+     }
+   });
+
+   const icon = computed(() => {
+     switch (props.type) {
+       case 'success':
+         return CheckCircleIcon;
+       case 'error':
+         return XCircleIcon;
+       case 'warning':
+         return ExclamationCircleIcon;
+       default:
+         return CheckCircleIcon;
+     }
+   });
+   </script>
+   ```
+
+2. トースト通知用のコンポーザブル作成（`composables/useToast.ts`）
+
+   ```typescript
+   import { ref } from 'vue';
+
+   export function useToast() {
+     const visible = ref(false);
+     const message = ref('');
+     const type = ref<'success' | 'error' | 'warning'>('success');
+     let timeout: NodeJS.Timeout | null = null;
+
+     const showToast = (
+       newMessage: string,
+       newType: 'success' | 'error' | 'warning' = 'success',
+       duration = 3000,
+     ) => {
+       message.value = newMessage;
+       type.value = newType;
+       visible.value = true;
+
+       if (timeout) {
+         clearTimeout(timeout);
+       }
+
+       timeout = setTimeout(() => {
+         visible.value = false;
+       }, duration);
+     };
+
+     const hideToast = () => {
+       visible.value = false;
+       if (timeout) {
+         clearTimeout(timeout);
+       }
+     };
+
+     return {
+       visible,
+       message,
+       type,
+       showToast,
+       hideToast,
+     };
+   }
+   ```
+
+3. `pages/create.vue`にトースト通知を追加
+   - 保存成功時のトースト表示
+   - エラー発生時のトースト表示
+
+#### ステップ4: ローディング状態の改善
+
+1. `components/ui/LoadingSpinner.vue`の作成
+
+   ```vue
+   <template>
+     <div class="flex justify-center items-center">
+       <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+     </div>
+   </template>
+   ```
+
+2. `pages/create.vue`のローディング表示改善
+   - ボタンのローディング状態表示
+   - フォーム全体のローディングオーバーレイ（大きなプロンプト保存時）
+
+#### ステップ5: テストの強化
+
+1. `tests/pages/create.test.js`の更新
+
+   - Supabase接続のモック
+   - 成功・失敗ケースのテスト
+
+2. `tests/api/prompts.test.js`の作成
+   - API関数のユニットテスト
+
+### 6.3 実装の注意点
+
+#### セキュリティ
+
+- ユーザー認証の確実な実装
+- RLSポリシーの適切な設定
+- クライアントサイドでの機密情報の扱い
+
+#### パフォーマンス
+
+- 大きなプロンプトの保存時のUX考慮
+- 非同期処理の適切な実装
+
+#### ユーザビリティ
+
+- 明確なフィードバック
+- エラーメッセージの分かりやすさ
+- 操作の直感性
+
+### 6.4 実装スケジュール案
+
+1. **Week 1**: 開発環境でのSupabase接続設定
+2. **Week 1-2**: エラーハンドリングの強化
+3. **Week 2**: ユーザーフィードバックの強化
+4. **Week 2-3**: ローディング状態の改善
+5. **Week 3**: テストの強化
+6. **Week 3-4**: レビューと修正
+
+### 6.5 将来の拡張性
+
+この実装を基盤として、以下の機能を段階的に追加することを検討します：
+
+1. タグ機能の実装
+2. プロンプトテンプレート機能
+3. バージョン管理機能
+4. 共有機能
+
+以上の計画に基づいて実装を進めることで、ユーザーが安全かつ効率的にプロンプトをSupabaseに登録できる機能を実現します。

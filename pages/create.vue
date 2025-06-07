@@ -10,8 +10,17 @@
       <LoadingSpinner color="white" size="lg" />
     </div>
 
-    <!-- 分割表示レイアウト -->
-    <div class="flex flex-col lg:flex-row gap-6">
+    <!-- 表示モード切り替えタブ -->
+    <TabNavigation
+      v-model="activeTab"
+      :tabs="[
+        { id: 'edit', label: '編集', icon: PencilIcon },
+        { id: 'run', label: '実行', icon: PlayIcon },
+      ]"
+    />
+
+    <!-- 編集画面（分割表示） -->
+    <div v-if="activeTab === 'edit'" class="flex flex-col lg:flex-row gap-6">
       <!-- 編集フォーム -->
       <form @submit.prevent="handleSubmit" class="space-y-6 lg:w-1/2">
         <!-- タイトル入力欄 -->
@@ -88,6 +97,7 @@
 
     <!-- 送信ボタン（フォーム下部に表示） -->
     <ActionButtons
+      v-if="activeTab === 'edit'"
       primaryText="保存する"
       loadingText="保存中..."
       :isLoading="isSubmitting"
@@ -95,21 +105,53 @@
       @primary-action="handleSubmit"
     />
 
+    <!-- 実行画面 -->
+    <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
+      <!-- 入力フォーム -->
+      <div class="lg:w-1/2">
+        <PromptRunSection v-model="input" :output="output" @run="handleRun" />
+      </div>
+
+      <!-- プレビュー表示 -->
+      <div class="lg:w-1/2 sticky top-6 self-start">
+        <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-2 flex items-center">
+          <EyeIcon class="w-4 h-4 mr-2 text-blue-500" />
+          <span class="font-medium">プロンプトプレビュー</span>
+        </div>
+        <PromptPreview
+          :title="form.title"
+          :description="form.description"
+          :prompt_text="form.prompt_text"
+          :model="form.model"
+          :lastEdited="getCurrentDateTime()"
+        />
+      </div>
+    </div>
+
     <!-- トースト通知 -->
     <Toast :visible="toast.visible.value" :type="toast.type.value" :message="toast.message.value" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { EyeIcon } from 'lucide-vue-next';
+import { ref, onMounted } from 'vue';
+import { EyeIcon, PlayIcon, PencilIcon } from 'lucide-vue-next';
 import PromptPreview from '../components/PromptPreview.vue';
 import PageHeader from '../components/ui/PageHeader.vue';
 import FormInput from '../components/ui/FormInput.vue';
 import ActionButtons from '../components/ui/ActionButtons.vue';
+import TabNavigation from '../components/ui/TabNavigation.vue';
+import PromptRunSection from '../components/PromptRunSection.vue';
 // Nuxt 3はコンポーネントを自動インポートするため、明示的なインポートは不要
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useToast, type ToastType } from '../composables/useToast';
+
+// アクティブなタブ（編集/実行）
+const activeTab = ref('edit');
+
+// 実行機能用の状態
+const input = ref('');
+const output = ref('');
 
 // 現在の日時を取得する関数
 const getCurrentDateTime = () => {
@@ -195,5 +237,20 @@ const handleSubmit = async () => {
   } finally {
     isSubmitting.value = false;
   }
+};
+// プロンプト実行処理
+const handleRun = () => {
+  // 入力をプロンプトに適用
+  const promptTemplate = form.prompt_text;
+  const filledPrompt = promptTemplate.replace('{{input}}', input.value);
+
+  // 実際のAPIコールはここで行う（現在はモック）
+  output.value = `1. これは簡略化された説明です。\n2. デモンストレーション用に作成されました。\n3. 実際のAPIに置き換えてください。`;
+};
+</script>
+
+<script lang="ts">
+export default {
+  name: 'CreatePromptPage',
 };
 </script>

@@ -3,7 +3,10 @@
     <PageHeader icon="HammerIcon" title="プロンプト編集" />
 
     <!-- ローディングオーバーレイ -->
-    <div v-if="isSubmitting" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+    <div
+      v-if="isSubmitting"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
+    >
       <LoadingSpinner color="white" size="lg" />
     </div>
 
@@ -65,11 +68,7 @@
     />
 
     <!-- トースト通知 -->
-    <Toast
-      :visible="toast.visible.value"
-      :type="toast.type.value"
-      :message="toast.message.value"
-    />
+    <Toast :visible="toast.visible.value" :type="toast.type.value" :message="toast.message.value" />
 
     <!-- 実行画面 -->
     <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
@@ -178,7 +177,7 @@ const getErrorMessage = (error: any): { message: string; type: string } => {
 
   return {
     message: '予期せぬエラーが発生しました。もう一度お試しください。',
-    type: 'unknown'
+    type: 'unknown',
   };
 };
 

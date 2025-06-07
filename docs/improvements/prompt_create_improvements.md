@@ -187,6 +187,7 @@
 ### 6.1 現状分析
 
 #### 実装済みの機能
+
 - プロンプト作成フォーム（`pages/create.vue`）
 - バリデーションロジック（`composables/usePromptValidation.ts`）
 - API通信処理（`api/prompts.ts`の`PromptsApi`クラス）
@@ -194,6 +195,7 @@
 - 認証ミドルウェア（`middleware/auth.global.ts`）
 
 #### 課題
+
 - 開発環境ではモック処理を行っており、実際のSupabaseへの登録は行われていない
 - エラーハンドリングが不十分
 - ユーザーフィードバックが不足
@@ -202,20 +204,25 @@
 ### 6.2 実装ステップ
 
 #### ステップ1: 開発環境でのSupabase接続設定
+
 1. ✅`.env`ファイルの作成・更新
+
    ```
    SUPABASE_URL=https://your-project-url.supabase.co
    SUPABASE_KEY=your-anon-key
    ```
 
 2. `plugins/supabase.ts`の確認・更新
+
    - 開発環境でも実際のSupabaseに接続するよう修正
 
 3. `pages/create.vue`の修正
    - 開発環境用のモック処理を削除または条件分岐を修正
 
 #### ステップ2: エラーハンドリングの強化
+
 1. `api/prompts.ts`の`createPrompt`メソッドのエラーハンドリング強化
+
    - より詳細なエラーメッセージ
    - エラータイプの分類（ネットワークエラー、認証エラー、バリデーションエラーなど）
 
@@ -224,7 +231,9 @@
    - リトライ機能の追加
 
 #### ステップ3: ユーザーフィードバックの強化
+
 1. トースト通知コンポーネントの作成（`components/ui/Toast.vue`）
+
    ```vue
    <template>
      <div v-if="visible" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg" :class="typeClass">
@@ -234,10 +243,10 @@
        </div>
      </div>
    </template>
-   
+
    <script setup lang="ts">
    import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon } from 'lucide-vue-next';
-   
+
    const props = defineProps({
      visible: Boolean,
      type: {
@@ -247,7 +256,7 @@
      },
      message: String,
    });
-   
+
    const typeClass = computed(() => {
      switch (props.type) {
        case 'success':
@@ -260,7 +269,7 @@
          return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
      }
    });
-   
+
    const icon = computed(() => {
      switch (props.type) {
        case 'success':
@@ -277,36 +286,41 @@
    ```
 
 2. トースト通知用のコンポーザブル作成（`composables/useToast.ts`）
+
    ```typescript
    import { ref } from 'vue';
-   
+
    export function useToast() {
      const visible = ref(false);
      const message = ref('');
      const type = ref<'success' | 'error' | 'warning'>('success');
      let timeout: NodeJS.Timeout | null = null;
-   
-     const showToast = (newMessage: string, newType: 'success' | 'error' | 'warning' = 'success', duration = 3000) => {
+
+     const showToast = (
+       newMessage: string,
+       newType: 'success' | 'error' | 'warning' = 'success',
+       duration = 3000,
+     ) => {
        message.value = newMessage;
        type.value = newType;
        visible.value = true;
-   
+
        if (timeout) {
          clearTimeout(timeout);
        }
-   
+
        timeout = setTimeout(() => {
          visible.value = false;
        }, duration);
      };
-   
+
      const hideToast = () => {
        visible.value = false;
        if (timeout) {
          clearTimeout(timeout);
        }
      };
-   
+
      return {
        visible,
        message,
@@ -322,7 +336,9 @@
    - エラー発生時のトースト表示
 
 #### ステップ4: ローディング状態の改善
+
 1. `components/ui/LoadingSpinner.vue`の作成
+
    ```vue
    <template>
      <div class="flex justify-center items-center">
@@ -336,7 +352,9 @@
    - フォーム全体のローディングオーバーレイ（大きなプロンプト保存時）
 
 #### ステップ5: テストの強化
+
 1. `tests/pages/create.test.js`の更新
+
    - Supabase接続のモック
    - 成功・失敗ケースのテスト
 
@@ -346,15 +364,18 @@
 ### 6.3 実装の注意点
 
 #### セキュリティ
+
 - ユーザー認証の確実な実装
 - RLSポリシーの適切な設定
 - クライアントサイドでの機密情報の扱い
 
 #### パフォーマンス
+
 - 大きなプロンプトの保存時のUX考慮
 - 非同期処理の適切な実装
 
 #### ユーザビリティ
+
 - 明確なフィードバック
 - エラーメッセージの分かりやすさ
 - 操作の直感性

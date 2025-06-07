@@ -53,7 +53,9 @@ beforeEach(() => {
     availableModels: ['gpt-4', 'claude-3'],
     isSubmitting: ref(false),
     submitError: ref(''),
-    getErrorMessage: vi.fn().mockReturnValue({ message: 'テストエラーメッセージ', type: 'unknown' }),
+    getErrorMessage: vi
+      .fn()
+      .mockReturnValue({ message: 'テストエラーメッセージ', type: 'unknown' }),
     validateForm: vi.fn().mockReturnValue(true),
     initializeDefaultModel: vi.fn(),
   }));
@@ -178,7 +180,7 @@ describe('CreatePage', () => {
     // usePromptsApiのモック（遅延を模倣）
     global.usePromptsApi = vi.fn().mockImplementation(() => ({
       createPrompt: vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return { id: 'test-id' };
       }),
       error: ref(null),

@@ -1,10 +1,7 @@
 <template>
   <!-- LoadingSpinner component -->
   <div class="flex justify-center items-center">
-    <div
-      class="animate-spin rounded-full border-b-2"
-      :class="[colorClass, sizeClass]"
-    ></div>
+    <div class="animate-spin rounded-full border-b-2" :class="[colorClass, sizeClass]"></div>
   </div>
 </template>
 

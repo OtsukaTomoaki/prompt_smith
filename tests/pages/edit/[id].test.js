@@ -265,7 +265,7 @@ describe('EditPage', () => {
         model: 'gpt-4',
       }),
       updatePrompt: vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return { id: 'test-id' };
       }),
       error: ref(null),
@@ -314,7 +314,7 @@ describe('EditPage', () => {
     // usePromptsApiのモック（遅延を模倣）
     global.usePromptsApi = vi.fn().mockImplementation(() => ({
       getPromptById: vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return {
           id: 'test-id',
           title: 'テストタイトル',

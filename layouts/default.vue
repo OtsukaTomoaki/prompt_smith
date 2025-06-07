@@ -2,9 +2,11 @@
   <div class="min-h-screen dark:bg-gray-900 dark:text-white">
     <!-- ヘッダー -->
     <header class="max-w-5xl mx-auto p-6 flex justify-between items-center">
-      <h1 class="text-3xl font-bold flex items-center gap-2">
-        <HammerIcon class="w-6 h-6" /> Promptsmith
-      </h1>
+      <NuxtLink to="/" class="hover:opacity-80 transition-opacity">
+        <h1 class="text-3xl font-bold flex items-center gap-2">
+          <HammerIcon class="w-6 h-6" /> Promptsmith
+        </h1>
+      </NuxtLink>
       <div class="relative inline-block">
         <button
           v-if="user"

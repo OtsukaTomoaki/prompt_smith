@@ -11,6 +11,8 @@ const stubs = {
   ActionButtons: true,
   LoadingSpinner: true,
   Toast: true,
+  TabNavigation: true,
+  PromptRunSection: true,
   // Lucideアイコンのモック
   EyeIcon: {
     template: '<div class="w-4 h-4 text-blue-500">👁</div>',
@@ -20,6 +22,12 @@ const stubs = {
   },
   PlusIcon: {
     template: '<div>➕</div>',
+  },
+  PencilIcon: {
+    template: '<div>✏️</div>',
+  },
+  PlayIcon: {
+    template: '<div>▶️</div>',
   },
 };
 
@@ -208,5 +216,64 @@ describe('CreatePage', () => {
 
     // 処理完了後にisSubmittingがfalseになっているか確認
     expect(wrapper.vm.isSubmitting).toBe(false);
+  });
+  it('タブナビゲーションコンポーネントが存在する', async () => {
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // TabNavigationコンポーネントが存在するか
+    expect(wrapper.findComponent({ name: 'TabNavigation' }).exists()).toBe(true);
+
+    // デフォルトでは編集タブがアクティブ
+    expect(wrapper.vm.activeTab).toBe('edit');
+  });
+
+  it('実行機能が実装されている', async () => {
+    // コンポーネントをマウント
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // activeTabプロパティが存在するか確認
+    expect(wrapper.vm).toHaveProperty('activeTab');
+    expect(wrapper.vm.activeTab).toBe('edit'); // デフォルトは編集タブ
+
+    // input, outputプロパティが存在するか確認
+    expect(wrapper.vm).toHaveProperty('input');
+    expect(wrapper.vm).toHaveProperty('output');
+
+    // handleRun関数が存在するか確認
+    expect(typeof wrapper.vm.handleRun).toBe('function');
+  });
+
+  it('handleRun関数が正しく動作する', async () => {
+    // コンポーネントをマウント
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // 直接handleRun関数を呼び出し
+    wrapper.vm.handleRun();
+    await wrapper.vm.$nextTick();
+
+    // 出力が生成されるか
+    expect(wrapper.vm.output).not.toBe('');
+    expect(wrapper.vm.output).toContain('デモンストレーション用に作成されました');
   });
 });

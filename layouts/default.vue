@@ -5,25 +5,29 @@
       <h1 class="text-3xl font-bold flex items-center gap-2">
         <HammerIcon class="w-6 h-6" /> Promptsmith
       </h1>
-      <div>
+      <div class="relative inline-block">
         <button
           v-if="user"
           @click="toggleUserMenu"
           class="flex items-center justify-center w-10 h-10 rounded-full"
+          ref="userIconBtn"
         >
           <UserIcon class="w-6 h-6" />
         </button>
       </div>
     </header>
 
-    <!-- ユーザーメニュー -->
-    <div
-      v-if="showUserMenu && user"
-      class="absolute right-6 top-20 bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md"
-    >
-      <p class="text-sm">{{ user.email }}</p>
-      <button @click="logout" class="mt-2 text-red-500 hover:underline text-xs">Logout</button>
-    </div>
+    <!-- ユーザーメニュー (ヘッダーの外に配置) -->
+    <Teleport to="body">
+      <div
+        v-if="showUserMenu && user"
+        class="fixed bg-white dark:bg-gray-700 text-black dark:text-white p-4 rounded shadow-md z-50 w-48"
+        :style="menuPosition"
+      >
+        <p class="text-sm">{{ user?.email }}</p>
+        <button @click="logout" class="mt-2 text-red-500 hover:underline text-xs">Logout</button>
+      </div>
+    </Teleport>
 
     <!-- メイン -->
     <main class="max-w-5xl mx-auto p-6">
@@ -42,6 +46,8 @@ const router = useRouter();
 
 const user = ref<User | null>(null);
 const showUserMenu = ref(false);
+const userIconBtn = ref<HTMLElement | null>(null);
+const menuPosition = ref({});
 
 useHead({
   link: [
@@ -57,6 +63,15 @@ onMounted(async () => {
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value;
+
+  // メニューが表示される場合は位置を計算
+  if (showUserMenu.value && userIconBtn.value) {
+    const rect = userIconBtn.value.getBoundingClientRect();
+    menuPosition.value = {
+      top: `${rect.bottom + 8}px`,
+      right: `${window.innerWidth - rect.right}px`
+    };
+  }
 };
 
 const logout = async () => {

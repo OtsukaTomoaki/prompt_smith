@@ -104,6 +104,15 @@ describe('CreatePage', () => {
   });
 
   it('フォーム送信時にAPIが呼び出され、成功時にトーストが表示される', async () => {
+    // APIモックを設定
+    const mockCreatePrompt = vi.fn().mockResolvedValue({ id: 'new-prompt-id' });
+
+    global.usePromptsApi = vi.fn().mockReturnValue({
+      createPrompt: mockCreatePrompt,
+      error: ref(null),
+      isLoading: ref(false),
+    });
+
     // コンポーネントをマウント
     const wrapper = mount(CreatePage, {
       global: {
@@ -120,8 +129,16 @@ describe('CreatePage', () => {
     // 送信ボタンが存在するか
     expect(wrapper.findComponent({ name: 'ActionButtons' }).exists()).toBe(true);
 
+    // 送信ボタンをクリック
+    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+    await wrapper.vm.$nextTick();
+
+    // APIが呼び出されたことを確認
+    expect(mockCreatePrompt).toHaveBeenCalled();
+
     // タイマーを進める
     vi.advanceTimersByTime(1500);
+    await wrapper.vm.$nextTick();
 
     // リダイレクトが呼ばれるか
     expect(mockNavigateTo).toHaveBeenCalledWith('/');

@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import { config } from '@vue/test-utils';
+import { ref } from 'vue';
 
 // Nuxtの自動インポート機能をモック
 global.usePromptValidation = vi.fn().mockImplementation(() => ({
@@ -11,8 +12,8 @@ global.usePromptValidation = vi.fn().mockImplementation(() => ({
   },
   errors: {},
   availableModels: ['GPT-4', 'GPT-3.5', 'Claude 3', 'Claude 2', 'Gemini Pro', 'Llama 3'],
-  isSubmitting: { value: false },
-  submitError: { value: '' },
+  isSubmitting: ref(false),
+  submitError: ref(''),
   validateForm: vi.fn().mockReturnValue(true),
   initializeDefaultModel: vi.fn(),
   resetForm: vi.fn(),
@@ -89,8 +90,8 @@ global.usePromptsApi = vi.fn().mockImplementation(() => ({
   }),
   updatePrompt: vi.fn().mockResolvedValue({ id: 'test-id' }),
   deletePrompt: vi.fn().mockResolvedValue(true),
-  error: { value: null },
-  isLoading: { value: false },
+  error: ref(null),
+  isLoading: ref(false),
 }));
 
 // Lucideアイコンのモック

@@ -136,38 +136,8 @@ describe('EditPage', () => {
   });
 
   it('フォーム送信時にAPIが呼び出され、成功時にトーストが表示される', async () => {
-    // コンポーネントをマウント
-    const wrapper = mount(EditPage, {
-      global: {
-        stubs,
-      },
-    });
-
-    // onMountedの処理を待機
-    await wrapper.vm.$nextTick();
-
-    // 編集用のdiv要素が存在するか
-    expect(wrapper.find('.lg\\:w-1\\/2').exists()).toBe(true);
-
-    // タイマーを進める
-    vi.advanceTimersByTime(1500);
-
-    // リダイレクトが呼ばれるか
-    expect(mockNavigateTo).toHaveBeenCalledWith('/');
-  });
-
-  it('API呼び出しでエラー発生時にエラーメッセージが表示される', async () => {
-    // モックを設定
-    const mockShowToast = vi.fn();
-
-    // グローバルモックを設定
-    global.useToast = vi.fn().mockReturnValue({
-      visible: ref(false),
-      message: ref(''),
-      type: ref('success'),
-      showToast: mockShowToast,
-      hideToast: vi.fn(),
-    });
+    // APIモックを設定
+    const mockUpdatePrompt = vi.fn().mockResolvedValue({ id: 'test-id' });
 
     global.usePromptsApi = vi.fn().mockReturnValue({
       getPromptById: vi.fn().mockResolvedValue({
@@ -177,8 +147,8 @@ describe('EditPage', () => {
         prompt_text: 'テストプロンプト',
         model: 'gpt-4',
       }),
-      updatePrompt: vi.fn().mockResolvedValue(null),
-      error: ref('テストエラー'),
+      updatePrompt: mockUpdatePrompt,
+      error: ref(null),
       isLoading: ref(false),
     });
 
@@ -192,14 +162,66 @@ describe('EditPage', () => {
     // onMountedの処理を待機
     await wrapper.vm.$nextTick();
 
-    // handleSave関数を直接呼び出す
-    await wrapper.vm.handleSave();
+    // 編集用のdiv要素が存在するか
+    expect(wrapper.find('.lg\\:w-1\\/2').exists()).toBe(true);
 
-    // エラー時にトーストが表示されるか
-    expect(mockShowToast).toHaveBeenCalledWith(
-      expect.stringContaining('エラー'),
-      'error'
-    );
+    // 保存ボタンをクリック
+    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+    await wrapper.vm.$nextTick();
+
+    // APIが呼び出されたことを確認
+    expect(mockUpdatePrompt).toHaveBeenCalled();
+
+    // タイマーを進める
+    vi.advanceTimersByTime(1500);
+    await wrapper.vm.$nextTick();
+
+    // リダイレクトが呼ばれるか
+    expect(mockNavigateTo).toHaveBeenCalledWith('/');
+  });
+
+  it('API呼び出しでエラー発生時にエラーメッセージが表示される', async () => {
+    // APIエラーを設定
+    const apiError = ref('テストエラー');
+
+    // updatePromptモック関数を作成
+    const mockUpdatePrompt = vi.fn().mockImplementation(async () => {
+      return null; // エラー時はnullを返す
+    });
+
+    // APIモックを設定
+    global.usePromptsApi = vi.fn().mockReturnValue({
+      getPromptById: vi.fn().mockResolvedValue({
+        id: 'test-id',
+        title: 'テストタイトル',
+        description: 'テスト説明',
+        prompt_text: 'テストプロンプト',
+        model: 'gpt-4',
+      }),
+      updatePrompt: mockUpdatePrompt,
+      error: apiError, // 最初からエラーを設定
+      isLoading: ref(false),
+    });
+
+    // コンポーネントをマウント
+    const wrapper = mount(EditPage, {
+      global: {
+        stubs,
+      },
+    });
+
+    // onMountedの処理を待機
+    await wrapper.vm.$nextTick();
+
+    // 保存ボタンをクリック
+    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+    await wrapper.vm.$nextTick();
+
+    // APIが呼び出されたことを確認
+    expect(mockUpdatePrompt).toHaveBeenCalled();
+
+    // エラーメッセージが表示されることを確認（Toastコンポーネントの表示を確認）
+    expect(wrapper.findComponent({ name: 'Toast' }).exists()).toBe(true);
   });
 
   it('データ取得時にエラーが発生した場合、エラーメッセージが表示される', async () => {

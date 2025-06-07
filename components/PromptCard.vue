@@ -5,7 +5,10 @@
 
     <div class="flex justify-between items-center text-sm mt-3">
       <Badge>{{ model }}</Badge>
-      <NuxtLink :to="link" class="text-blue-400 hover:underline">Edit</NuxtLink>
+      <div class="flex gap-3">
+        <NuxtLink :to="link" class="text-blue-400 hover:underline">Edit</NuxtLink>
+        <button @click="$emit('delete')" class="text-red-400 hover:underline">Delete</button>
+      </div>
     </div>
 
     <div class="text-xs text-gray-500 mt-1">
@@ -24,5 +27,9 @@ defineProps<{
   model: string;
   lastEdited: string;
   link: string;
+}>();
+
+defineEmits<{
+  (e: 'delete'): void;
 }>();
 </script>

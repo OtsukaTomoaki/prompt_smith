@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
 import PromptPreview from '../../components/PromptPreview.vue';
 
 // Nuxt関連の機能をモック

@@ -205,7 +205,7 @@ describe('useOpenAiApi', () => {
       expect(global.fetch).toHaveBeenCalledWith('https://api.openai.com/v1/models', {
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer valid-api-key',
+          Authorization: 'Bearer valid-api-key',
           'Content-Type': 'application/json',
         },
       });
@@ -275,7 +275,7 @@ describe('useOpenAiApi', () => {
       expect(global.fetch).toHaveBeenCalledWith('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer test-api-key',
+          Authorization: 'Bearer test-api-key',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),

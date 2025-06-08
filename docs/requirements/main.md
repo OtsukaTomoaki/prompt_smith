@@ -35,27 +35,27 @@
 
 ## 🛠 4. 技術スタック
 
-| 項目           | 技術                                       |
-| :------------- | :----------------------------------------- |
-| フロントエンド | Nuxt3, TailwindCSS, TypeScript             |
+| 項目             | 技術                                             |
+| :--------------- | :----------------------------------------------- |
+| フロントエンド   | Nuxt3, TailwindCSS, TypeScript                   |
 | UIコンポーネント | 自作コンポーネント + lucide-vue-next（アイコン） |
-| バックエンド   | Supabase (PostgreSQL + Edge Functions予定) |
-| 認証           | Supabase Auth (Googleログインのみ)         |
-| OpenAI連携     | ユーザー持ちAPI Key利用, fetch直接通信     |
-| テスト環境     | Vitest, @testing-library/vue               |
+| バックエンド     | Supabase (PostgreSQL + Edge Functions予定)       |
+| 認証             | Supabase Auth (Googleログインのみ)               |
+| OpenAI連携       | ユーザー持ちAPI Key利用, fetch直接通信           |
+| テスト環境       | Vitest, @testing-library/vue                     |
 
 ---
 
 ## 🎨 5. UIコンポーネント
 
-| コンポーネント | 説明                                       | 使用アイコン                           |
-| :------------- | :----------------------------------------- | :------------------------------------- |
-| PageHeader     | タイトルとアイコンを表示するヘッダー       | PlusIcon, HammerIcon, EyeIcon, PencilIcon |
-| Toast          | 通知メッセージを表示                       | -                                      |
-| LoadingSpinner | 読み込み中の表示                           | -                                      |
-| ActionButtons  | アクション用ボタン群                       | -                                      |
-| FormInput      | 入力フォーム要素                           | -                                      |
-| TabNavigation  | タブナビゲーション                         | -                                      |
+| コンポーネント | 説明                                 | 使用アイコン                              |
+| :------------- | :----------------------------------- | :---------------------------------------- |
+| PageHeader     | タイトルとアイコンを表示するヘッダー | PlusIcon, HammerIcon, EyeIcon, PencilIcon |
+| Toast          | 通知メッセージを表示                 | -                                         |
+| LoadingSpinner | 読み込み中の表示                     | -                                         |
+| ActionButtons  | アクション用ボタン群                 | -                                         |
+| FormInput      | 入力フォーム要素                     | -                                         |
+| TabNavigation  | タブナビゲーション                   | -                                         |
 
 ---
 

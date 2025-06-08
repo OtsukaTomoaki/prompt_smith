@@ -108,39 +108,228 @@ Let's build high-quality and maintainable software together! 🚀
 
 ---
 
-# Supabase Client
+# 🗄️ Supabase Setup
 
-This project uses Supabase as a backend service. The Supabase client is configured in the `plugins/supabase.js` file.
+This project uses Supabase as a backend service for authentication, database, and Edge Functions.
 
-```javascript
-import { createClient } from '@supabase/supabase-js';
-import { useRuntimeConfig } from '#app';
-import { defineNuxtPlugin } from '#app';
-export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig();
-  const supabaseUrl = config.public.supabaseUrl;
-  const supabaseKey = config.public.supabaseKey;
+## Prerequisites
 
-  const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-  nuxtApp.provide('supabase', supabaseClient);
-});
-```
-
-## migration
+1. Install Supabase CLI:
 
 ```bash
-npx supabase db push
+npm install -g @supabase/cli
 ```
 
-```bash
-npx supabase db remote commit -m "migration"
-```
+2. Create a Supabase project at [supabase.com](https://supabase.com)
+
+## Local Development Setup
+
+### 1. Initialize Supabase locally
 
 ```bash
-npx supabase db remote sync
+supabase init
 ```
 
+### 2. Link to your Supabase project
+
 ```bash
-npx supabase db remote diff
+supabase link --project-ref YOUR_PROJECT_ID
 ```
+
+### 3. Configure environment variables for Edge Functions
+
+**For Local Development:**
+Add the following to `supabase/config.toml`:
+
+```toml
+[edge_runtime.secrets]
+OPENAI_ENCRYPTION_SECRET = "your-32-character-encryption-secret-key"
+```
+
+**For Production:**
+Set the environment variable in your Supabase dashboard:
+
+```bash
+supabase secrets set OPENAI_ENCRYPTION_SECRET="your-32-character-encryption-secret-key"
+```
+
+### 4. Start local Supabase services
+
+```bash
+supabase start
+```
+
+### 5. Apply database migrations
+
+```bash
+supabase db push
+```
+
+### 6. Deploy Edge Functions
+
+```bash
+supabase functions deploy
+```
+
+## Database Migrations
+
+Apply migrations to local database:
+
+```bash
+supabase db push
+```
+
+Create a new migration:
+
+```bash
+supabase db diff -f migration_name
+```
+
+Apply migrations to production:
+
+```bash
+supabase db push --linked
+```
+
+Sync remote changes:
+
+```bash
+supabase db remote sync
+```
+
+## Edge Functions
+
+This project includes the following Edge Functions for secure OpenAI API key management:
+
+- `api-key-encrypt`: Encrypts and stores OpenAI API keys
+- `api-key-decrypt`: Retrieves and decrypts stored API keys
+- `api-key-delete`: Removes stored API keys
+
+### Deploy Edge Functions to Production
+
+```bash
+supabase functions deploy --project-ref YOUR_PROJECT_ID
+```
+
+### Test Edge Functions locally
+
+```bash
+supabase functions serve
+```
+
+## Environment Variables
+
+### Required Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Supabase Configuration
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# For E2E Testing (optional)
+LOCAL_GOOGLE_TEST_EMAIL=your_test_email@gmail.com
+LOCAL_GOOGLE_TEST_PASSWORD=your_test_password
+```
+
+### Production Environment Variables
+
+Set these in your deployment platform (Vercel, Netlify, etc.):
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+And in your Supabase project dashboard:
+
+- `OPENAI_ENCRYPTION_SECRET` (32+ character string for API key encryption)
+
+## 🔐 OpenAI API Key Security
+
+This application securely stores OpenAI API keys using AES-GCM encryption:
+
+1. **Client-side**: Users enter their OpenAI API key in the settings page
+2. **Edge Function**: The key is encrypted using AES-GCM with a secret key
+3. **Database**: Only the encrypted key and initialization vector are stored
+4. **Retrieval**: Keys are decrypted on-demand when needed for API calls
+
+### Security Features
+
+- ✅ AES-GCM encryption with 256-bit keys
+- ✅ Unique salt and IV for each encryption
+- ✅ Server-side encryption/decryption only
+- ✅ Row Level Security (RLS) policies
+- ✅ User-specific key isolation
+
+## Troubleshooting
+
+### "Failed to send a request to the Edge Function" Error
+
+This error typically occurs when:
+
+1. **Supabase is not running locally**:
+
+   ```bash
+   supabase start
+   ```
+
+2. **Missing encryption secret**:
+
+   - Check `supabase/config.toml` has the `[edge_runtime.secrets]` section
+   - Ensure `OPENAI_ENCRYPTION_SECRET` is set in production
+
+3. **Edge Functions not deployed**:
+   ```bash
+   supabase functions deploy
+   ```
+
+### "client.manifest.mjs not found" Error
+
+This error occurs when Nuxt build files are corrupted or missing. To fix:
+
+1. **Stop the development server**:
+
+   ```bash
+   # Press Ctrl+C or kill the process
+   pkill -f "npm run dev"
+   ```
+
+2. **Clean build directories**:
+
+   ```bash
+   rm -rf .nuxt .output
+   ```
+
+3. **Clean and reinstall dependencies** (if needed):
+
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+4. **Restart development server**:
+   ```bash
+   npm run dev
+   ```
+
+### Database Connection Issues
+
+1. Check if Supabase is running:
+
+   ```bash
+   supabase status
+   ```
+
+2. Reset local database:
+
+   ```bash
+   supabase db reset
+   ```
+
+3. Check environment variables are correctly set
+
+### Authentication Issues
+
+1. Verify Google OAuth is configured in Supabase dashboard
+2. Check redirect URLs are properly set
+3. Ensure authentication policies are correctly applied

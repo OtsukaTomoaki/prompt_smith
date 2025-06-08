@@ -68,410 +68,230 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ## 4. 詳細実装計画
 
-### 4.1 Supabase Migration実装（003_create_user_settings.sql）
+### 4.1 Supabase Migration実装
 
-#### テーブル定義
+#### 実装タスク
 
-```sql
-create table user_settings (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users,
-  encrypted_key text,
-  created_at timestamp with time zone default timezone('utc', now()),
-  updated_at timestamp with time zone default timezone('utc', now()),
-  unique(user_id)
-);
+- [ ] user_settingsテーブルの作成
+  - 工数: 0.5日
+  - テスト: マイグレーションの実行テスト、テーブル構造の確認
+  - 実装方針: Supabaseマイグレーションファイルを作成し、必要なカラムとインデックスを定義
+  - 完了条件: テーブルが正しく作成され、RLSポリシーが適切に設定されていること
 
--- RLSポリシー設定
-alter table user_settings enable row level security;
-
-create policy "ユーザーは自分の設定のみ参照可能"
-  on user_settings for select
-  using (auth.uid() = user_id);
-
-create policy "ユーザーは自分の設定のみ更新可能"
-  on user_settings for update
-  using (auth.uid() = user_id);
-
-create policy "ユーザーは自分の設定のみ作成可能"
-  on user_settings for insert
-  with check (auth.uid() = user_id);
-```
+- [ ] RLSポリシーの設定
+  - 工数: 0.5日
+  - テスト: 各ポリシーの動作確認（select, insert, update）
+  - 実装方針: ユーザーIDに基づくRLSポリシーを実装し、データアクセスを制限
+  - 完了条件: 異なるユーザー間でデータが適切に分離され、セキュリティが確保されていること
 
 ### 4.2 Edge Function実装
 
 #### 4.2.1 api-key-encrypt
 
-```typescript
-// supabase/functions/api-key-encrypt/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  // CORS対応
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    const { apiKey } = await req.json();
-
-    // 暗号化処理
-    const encoder = new TextEncoder();
-    const key = encoder.encode(Deno.env.get('OPENAI_ENCRYPTION_SECRET'));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const data = encoder.encode(apiKey);
-
-    const encryptedData = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv },
-      await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['encrypt']),
-      data,
-    );
-
-    // 暗号化データとIVを結合して保存
-    const encryptedArray = new Uint8Array(iv.length + encryptedData.byteLength);
-    encryptedArray.set(iv, 0);
-    encryptedArray.set(new Uint8Array(encryptedData), iv.length);
-    const encryptedBase64 = encode(encryptedArray);
-
-    // Supabaseクライアント初期化
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
-    );
-
-    // ユーザー情報取得
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-    if (userError) throw new Error('認証エラー');
-
-    // user_settingsテーブルに保存
-    const { data, error } = await supabaseClient
-      .from('user_settings')
-      .upsert({
-        user_id: user.id,
-        encrypted_key: encryptedBase64,
-        updated_at: new Date().toISOString(),
-      })
-      .select();
-
-    if (error) throw error;
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-});
-```
+- [ ] api-key-encryptのEdge Function実装
+  - 工数: 1日
+  - テスト: 暗号化処理のユニットテスト、エラーハンドリングテスト
+  - 実装方針: 
+    - AES-GCM暗号化アルゴリズムを使用
+    - 環境変数からの暗号化キー取得
+    - CORS対応の実装
+    - Supabaseクライアントを使用したデータ保存
+  - 完了条件: 
+    - API Keyが安全に暗号化されてDBに保存されること
+    - 適切なエラーハンドリングが実装されていること
+    - CORSリクエストが正しく処理されること
 
 #### 4.2.2 api-key-decrypt
 
-```typescript
-// supabase/functions/api-key-decrypt/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { decode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  // CORS対応
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    // Supabaseクライアント初期化
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
-    );
-
-    // ユーザー情報取得
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-    if (userError) throw new Error('認証エラー');
-
-    // 暗号化されたキーを取得
-    const { data, error } = await supabaseClient
-      .from('user_settings')
-      .select('encrypted_key')
-      .eq('user_id', user.id)
-      .single();
-
-    if (error) throw error;
-    if (!data?.encrypted_key) {
-      return new Response(JSON.stringify({ apiKey: null }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // 復号処理
-    const decoder = new TextDecoder();
-    const key = new TextEncoder().encode(Deno.env.get('OPENAI_ENCRYPTION_SECRET'));
-    const encryptedArray = decode(data.encrypted_key);
-
-    // IVと暗号化データを分離
-    const iv = encryptedArray.slice(0, 12);
-    const encryptedData = encryptedArray.slice(12);
-
-    const decryptedData = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt']),
-      encryptedData,
-    );
-
-    const apiKey = decoder.decode(decryptedData);
-
-    return new Response(JSON.stringify({ apiKey }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-});
-```
+- [ ] api-key-decryptのEdge Function実装
+  - 工数: 1日
+  - テスト: 復号処理のユニットテスト、エラーハンドリングテスト
+  - 実装方針:
+    - AES-GCM復号アルゴリズムを使用
+    - 環境変数からの暗号化キー取得
+    - CORS対応の実装
+    - Supabaseクライアントを使用したデータ取得
+  - 完了条件:
+    - 暗号化されたAPI Keyが正しく復号されること
+    - キーが存在しない場合の適切な処理
+    - 適切なエラーハンドリングが実装されていること
 
 #### 4.2.3 api-key-delete
 
-```typescript
-// supabase/functions/api-key-delete/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  // CORS対応
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    // Supabaseクライアント初期化
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
-    );
-
-    // ユーザー情報取得
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-    if (userError) throw new Error('認証エラー');
-
-    // encrypted_keyをNULLに更新
-    const { data, error } = await supabaseClient
-      .from('user_settings')
-      .update({
-        encrypted_key: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id);
-
-    if (error) throw error;
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-});
-```
+- [ ] api-key-deleteのEdge Function実装
+  - 工数: 0.5日
+  - テスト: 削除処理のユニットテスト、エラーハンドリングテスト
+  - 実装方針:
+    - Supabaseクライアントを使用したデータ更新
+    - CORS対応の実装
+    - ユーザー認証の確認
+  - 完了条件:
+    - API Keyが正しく削除（NULLに設定）されること
+    - 適切なエラーハンドリングが実装されていること
+    - 認証されたユーザーのみが操作可能であること
 
 ### 4.3 Composable実装（useOpenAiApi.ts）
 
-#### 機能
+- [ ] useOpenAiApi Composableの基本構造実装
+  - 工数: 0.5日
+  - テスト: 状態管理のユニットテスト
+  - 実装方針:
+    - Composition APIを使用した状態管理
+    - ref, computed, watchEffectの適切な使用
+  - 完了条件:
+    - API Key、検証状態、ローディング状態、エラーメッセージの状態が適切に管理されること
 
-- API Keyの保存・取得・削除（Edge Function経由）
-- API Keyの有効性検証
-- OpenAI APIへのリクエスト送信
+- [ ] API Key取得・保存・削除機能の実装
+  - 工数: 1日
+  - テスト: Edge Function呼び出しのモックテスト、エラーハンドリングテスト
+  - 実装方針:
+    - Supabase Functionsの呼び出し
+    - エラーハンドリングの実装
+    - 非同期処理の適切な管理
+  - 完了条件:
+    - getApiKey、saveApiKey、removeApiKey関数が正しく動作すること
+    - エラー発生時に適切なエラーメッセージが設定されること
 
-#### 主要機能
+- [ ] API Key検証機能の実装
+  - 工数: 0.5日
+  - テスト: OpenAI API呼び出しのモックテスト、成功/失敗ケースのテスト
+  - 実装方針:
+    - OpenAI APIのモデルリスト取得エンドポイントを使用した検証
+    - タイムアウト処理の実装
+  - 完了条件:
+    - validateApiKey関数が正しく動作し、有効/無効なAPIキーを判別できること
+    - ネットワークエラー時の適切な処理が実装されていること
 
-- **状態管理**
-
-  - API Key（`apiKey`）
-  - 検証状態（`isValid`）
-  - ローディング状態（`isLoading`）
-  - エラーメッセージ（`error`）
-
-- **メソッド**
-
-  - `getApiKey()`: Edge Function経由でAPI Keyを取得
-  - `getMaskedApiKey()`: 表示用にマスクされたAPI Keyを取得
-  - `saveApiKey(key)`: Edge Function経由でAPI Keyを暗号化保存
-  - `removeApiKey()`: Edge Function経由でAPI Keyを削除
-  - `validateApiKey(key?)`: API Keyの有効性を検証（OpenAI API呼び出し）
-  - `sendRequest(endpoint, data)`: OpenAI APIへリクエスト送信
-
-- **実装ポイント**
-  - Edge Function呼び出しにはSupabaseクライアントを使用
-  - API Keyはクライアント側のメモリにのみ一時的に保持（セッション中）
-  - エラーハンドリングの徹底
+- [ ] OpenAI APIリクエスト送信機能の実装
+  - 工数: 0.5日
+  - テスト: リクエスト送信のモックテスト、レスポンス処理テスト
+  - 実装方針:
+    - fetch APIを使用したリクエスト送信
+    - リクエストヘッダーの適切な設定
+    - レスポンス処理の実装
+  - 完了条件:
+    - sendRequest関数が正しく動作し、OpenAI APIにリクエストを送信できること
+    - レスポンスが適切に処理されること
 
 ### 4.4 コンポーネント実装
 
 #### 4.4.1 ApiKeyForm.vue
 
-#### 主要機能
+- [ ] ApiKeyForm.vueの基本構造実装
+  - 工数: 0.5日
+  - テスト: コンポーネントのレンダリングテスト
+  - 実装方針:
+    - Composition APIを使用したコンポーネント設計
+    - TailwindCSSによるスタイリング
+    - FormInputコンポーネントの再利用
+  - 完了条件:
+    - コンポーネントが正しくレンダリングされること
+    - 入力フィールドと操作ボタンが適切に配置されていること
 
-- **UI要素**
+- [ ] API Key入力と表示/非表示切り替え機能の実装
+  - 工数: 0.5日
+  - テスト: 入力動作テスト、表示/非表示切り替えテスト
+  - 実装方針:
+    - パスワードタイプの入力フィールド
+    - 表示/非表示切り替えボタンの実装
+    - 入力値のバリデーション
+  - 完了条件:
+    - API Keyが正しく入力でき、表示/非表示を切り替えられること
+    - 入力値のバリデーションが機能すること
 
-  - パスワードタイプの入力フィールド（表示/非表示切り替え機能付き）
-  - 保存ボタンと削除ボタン
-  - 検証ステータス表示（成功/エラー）
-
-- **状態管理**
-
-  - API Key入力値
-  - バリデーションステータス
-  - エラーメッセージ
-  - ローディング状態
-
-- **主要メソッド**
-
-  - `saveApiKey()`: API Keyの保存と検証
-  - `removeApiKey()`: API Keyの削除
-  - `clearValidationStatus()`: 検証状態のリセット
-
-- **実装ポイント**
-  - API Keyのフォーマット検証（sk-で始まる文字列）
-  - 保存前のAPI Key有効性検証
-  - 成功/エラー時のトースト表示
-  - 初期表示時の保存済みAPI Key読み込み
+- [ ] API Key保存・削除機能の実装
+  - 工数: 0.5日
+  - テスト: 保存・削除機能のテスト、ローディング状態テスト
+  - 実装方針:
+    - useOpenAiApi Composableの利用
+    - ローディング状態の表示
+    - 成功/エラー時のフィードバック
+  - 完了条件:
+    - API Keyが正しく保存・削除できること
+    - 処理中はローディング状態が表示されること
+    - 成功/エラー時に適切なフィードバックが表示されること
 
 #### 4.4.2 ApiKeyInfo.vue
 
-#### 主要機能
-
-- **情報表示**
-
-  - API Keyの取得方法の説明
-  - OpenAI APIの料金・クレジット情報へのリンク
-  - セキュリティに関する注意事項
-
-- **実装ポイント**
-  - 外部リンク（OpenAI API Keys, Billing）
-  - セキュリティ警告の視覚的強調
-  - ダークモード対応
+- [ ] ApiKeyInfo.vueの実装
+  - 工数: 0.5日
+  - テスト: コンポーネントのレンダリングテスト
+  - 実装方針:
+    - 静的な情報表示コンポーネント
+    - TailwindCSSによるスタイリング
+    - 外部リンクの実装
+  - 完了条件:
+    - API Keyに関する情報が適切に表示されること
+    - 外部リンクが正しく機能すること
+    - セキュリティ警告が視覚的に強調されていること
 
 ### 4.5 ページ実装
 
-#### 4.5.1 pages/settings/api.vue
-
-#### 主要機能
-
-- **ページ構成**
-
-  - ページヘッダー
-  - API Key設定フォーム
-  - API Key情報セクション
-
-- **実装ポイント**
-  - レスポンシブデザイン（max-w-2xl）
-  - ダークモード対応
-  - SEO対応（title, meta description）
+- [ ] pages/settings/api.vueの実装
+  - 工数: 1日
+  - テスト: ページのレンダリングテスト、コンポーネント統合テスト
+  - 実装方針:
+    - ApiKeyFormとApiKeyInfoコンポーネントの統合
+    - ページレイアウトの設計
+    - SEO対応の実装
+  - 完了条件:
+    - ページが正しくレンダリングされ、各コンポーネントが適切に配置されていること
+    - レスポンシブデザインが実装されていること
+    - SEO対応が適切に行われていること
 
 ### 4.6 ナビゲーション修正
 
-#### 4.6.1 components/ui/TabNavigation.vue の修正
-
-#### 修正内容
-
-- **タブ追加**
-
-  - 既存のタブナビゲーションに「API設定」タブを追加
-  - パス: `/settings/api`
-  - アイコン: `SettingsIcon`（lucide-vue-next）
-
-- **実装ポイント**
-  - アクティブ状態の判定ロジック
-  - ダークモード対応
+- [ ] TabNavigation.vueの修正
+  - 工数: 0.5日
+  - テスト: ナビゲーションのレンダリングテスト、アクティブ状態テスト
+  - 実装方針:
+    - 既存のナビゲーションコンポーネントに新しいタブを追加
+    - アクティブ状態の判定ロジック実装
+    - アイコンの追加
+  - 完了条件:
+    - 「API設定」タブが正しく表示されること
+    - アクティブ状態が正しく判定されること
+    - タブクリックで正しくナビゲートされること
 
 ## 5. テスト計画
 
-### 5.1 単体テスト（useOpenAiApi.test.ts）
+### 5.1 単体テスト
 
-#### テスト対象
+- **useOpenAiApi.test.ts**
+  - API Keyの保存・取得・削除機能のテスト
+  - API Key検証機能のテスト
+  - エラーハンドリングのテスト
+  - Edge Function呼び出しのモックテスト
+  - OpenAI APIリクエストのモックテスト
 
-- **useOpenAiApi Composable**
+- **ApiKeyForm.test.ts**
+  - コンポーネントのレンダリングテスト
+  - 入力フィールドの動作テスト
+  - 表示/非表示切り替え機能のテスト
+  - 保存・削除ボタンの動作テスト
+  - バリデーション機能のテスト
+  - エラー表示のテスト
 
-  - API Keyの保存・取得・削除機能
-  - API Keyの検証機能
-  - エラーハンドリング
+- **ApiKeyInfo.test.ts**
+  - コンポーネントのレンダリングテスト
+  - 外部リンクの存在確認
 
-- **テストポイント**
+- **api.test.ts（ページテスト）**
+  - ページのレンダリングテスト
+  - コンポーネントの統合テスト
+  - レスポンシブデザインのテスト
 
-  - Edge Function呼び出しの正常動作
-  - API Key検証の成功・失敗ケース
-  - ネットワークエラー処理
-  - リクエスト送信の正常動作
+### 5.2 統合テスト
 
-- **モック対象**
-  - Supabase Functions
-  - fetch API
-  - useNuxtApp
+- API Key保存から取得までの一連のフローテスト
+- エラー発生時のフィードバック表示テスト
+- ナビゲーションからのページ遷移テスト
 
-### 5.2 コンポーネントテスト（ApiKeyForm.test.ts）
-
-#### テスト対象
-
-- **ApiKeyForm コンポーネント**
-
-  - レンダリング
-  - API Keyフォーマット検証
-  - API Key保存・削除機能
-
-- **テストポイント**
-
-  - コンポーネントの正常表示
-  - 無効なAPI Key入力時のエラー表示
-  - 有効なAPI Key保存時の動作
-  - API Key削除時の動作
-
-- **モック対象**
-  - useOpenAiApi Composable
-  - useToast Composable
-
-### 5.3 E2Eテスト計画
+### 5.3 E2Eテスト
 
 以下のシナリオをCypress または Playwright で実装：
 
 1. **基本フロー**
-
    - API設定ページへのナビゲーション
    - API Keyの入力と保存
    - API Keyの検証（モック応答使用）
@@ -509,13 +329,13 @@ serve(async (req) => {
 
 ## 7. リスク管理
 
-| リスク               | 影響度 | 対策                                                                    |
-| :------------------- | :----- | :---------------------------------------------------------------------- |
-| API Keyの漏洩        | 高     | ・Edge Functionでの暗号化<br>・マスキング表示<br>・セキュリティ警告表示 |
-| 暗号化キーの漏洩     | 高     | ・環境変数での管理<br>・定期的なキーローテーション                      |
-| OpenAI APIの仕様変更 | 中     | ・エラーハンドリングの強化<br>・定期的な動作確認                        |
-| Edge Function障害    | 中     | ・エラー時のフォールバック処理<br>・監視体制の構築                      |
-| ブラウザ互換性の問題 | 中     | ・主要ブラウザでのテスト<br>・フォールバック機能の実装                  |
+| リスク               | 影響度 | 発生確率 | 対策                                                                    |
+| :------------------- | :----- | :------- | :---------------------------------------------------------------------- |
+| API Keyの漏洩        | 高     | 低       | ・Edge Functionでの暗号化<br>・マスキング表示<br>・セキュリティ警告表示 |
+| 暗号化キーの漏洩     | 高     | 低       | ・環境変数での管理<br>・定期的なキーローテーション                      |
+| OpenAI APIの仕様変更 | 中     | 中       | ・エラーハンドリングの強化<br>・定期的な動作確認                        |
+| Edge Function障害    | 中     | 中       | ・エラー時のフォールバック処理<br>・監視体制の構築                      |
+| ブラウザ互換性の問題 | 中     | 低       | ・主要ブラウザでのテスト<br>・フォールバック機能の実装                  |
 
 ## 8. 将来の拡張計画
 
@@ -534,25 +354,28 @@ serve(async (req) => {
 
 ## 9. 実装時の注意点
 
-1. **セキュリティ**
+### 9.1 セキュリティ
 
-   - 暗号化キー（OPENAI_ENCRYPTION_SECRET）は十分な強度を持つランダムな値を使用
-   - デバッグログにAPI Keyが出力されないよう注意
-   - Edge Functionのアクセス制御を適切に設定
+- 暗号化キー（OPENAI_ENCRYPTION_SECRET）は十分な強度を持つランダムな値を使用
+- デバッグログにAPI Keyが出力されないよう注意
+- Edge Functionのアクセス制御を適切に設定
 
-2. **パフォーマンス**
+### 9.2 パフォーマンス
 
-   - API Key検証は必要最小限に抑える
-   - Edge Function呼び出しの最適化
+- API Key検証は必要最小限に抑える
+- Edge Function呼び出しの最適化
+- クライアント側でのキャッシュ戦略の検討
 
-3. **ユーザビリティ**
+### 9.3 ユーザビリティ
 
-   - エラーメッセージは具体的で分かりやすく表示
-   - API Key入力フォームはパスワード表示/非表示の切り替え機能を提供
-   - 処理中は適切なローディング表示
-   - 成功/失敗時のフィードバックを明確に表示
+- エラーメッセージは具体的で分かりやすく表示
+- API Key入力フォームはパスワード表示/非表示の切り替え機能を提供
+- 処理中は適切なローディング表示
+- 成功/失敗時のフィードバックを明確に表示
 
-4. **保守性**
-   - コードの分離（UI/ロジック）を徹底
-   - 適切なコメント・ドキュメント
-   - 将来の拡張を考慮した設計
+### 9.4 保守性
+
+- コードの分離（UI/ロジック）を徹底
+- 適切なコメント・ドキュメント
+- 将来の拡張を考慮した設計
+- テストカバレッジの確保

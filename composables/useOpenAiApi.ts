@@ -147,7 +147,7 @@ export function useOpenAiApi() {
       const response = await fetch('https://api.openai.com/v1/models', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${keyToValidate}`,
+          Authorization: `Bearer ${keyToValidate}`,
           'Content-Type': 'application/json',
         },
       });
@@ -193,7 +193,7 @@ export function useOpenAiApi() {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey.value}`,
+          Authorization: `Bearer ${apiKey.value}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),

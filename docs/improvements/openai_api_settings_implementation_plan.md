@@ -73,6 +73,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 #### 実装タスク
 
 - [ ] user_settingsテーブルの作成
+
   - 工数: 0.5日
   - テスト: マイグレーションの実行テスト、テーブル構造の確認
   - 実装方針: Supabaseマイグレーションファイルを作成し、必要なカラムとインデックスを定義
@@ -91,12 +92,12 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 - [ ] api-key-encryptのEdge Function実装
   - 工数: 1日
   - テスト: 暗号化処理のユニットテスト、エラーハンドリングテスト
-  - 実装方針: 
+  - 実装方針:
     - AES-GCM暗号化アルゴリズムを使用
     - 環境変数からの暗号化キー取得
     - CORS対応の実装
     - Supabaseクライアントを使用したデータ保存
-  - 完了条件: 
+  - 完了条件:
     - API Keyが安全に暗号化されてDBに保存されること
     - 適切なエラーハンドリングが実装されていること
     - CORSリクエストが正しく処理されること
@@ -133,6 +134,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 ### 4.3 Composable実装（useOpenAiApi.ts）
 
 - [x] useOpenAiApi Composableの基本構造実装
+
   - 工数: 0.5日
   - テスト: 状態管理のユニットテスト
   - 実装方針:
@@ -142,6 +144,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - API Key、検証状態、ローディング状態、エラーメッセージの状態が適切に管理されること
 
 - [x] API Key取得・保存・削除機能の実装
+
   - 工数: 1日
   - テスト: Edge Function呼び出しのモックテスト、エラーハンドリングテスト
   - 実装方針:
@@ -153,6 +156,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - エラー発生時に適切なエラーメッセージが設定されること
 
 - [x] API Key検証機能の実装
+
   - 工数: 0.5日
   - テスト: OpenAI API呼び出しのモックテスト、成功/失敗ケースのテスト
   - 実装方針:
@@ -178,6 +182,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 #### 4.4.1 ApiKeyForm.vue
 
 - [ ] ApiKeyForm.vueの基本構造実装
+
   - 工数: 0.5日
   - テスト: コンポーネントのレンダリングテスト
   - 実装方針:
@@ -189,6 +194,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - 入力フィールドと操作ボタンが適切に配置されていること
 
 - [ ] API Key入力と表示/非表示切り替え機能の実装
+
   - 工数: 0.5日
   - テスト: 入力動作テスト、表示/非表示切り替えテスト
   - 実装方針:
@@ -258,6 +264,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 ### 5.1 単体テスト
 
 - ✅ **useOpenAiApi.test.ts** (完了)
+
   - API Keyの保存・取得・削除機能のテスト
   - API Key検証機能のテスト
   - エラーハンドリングのテスト
@@ -265,6 +272,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - OpenAI APIリクエストのモックテスト
 
 - **ApiKeyForm.test.ts**
+
   - コンポーネントのレンダリングテスト
   - 入力フィールドの動作テスト
   - 表示/非表示切り替え機能のテスト
@@ -273,6 +281,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - エラー表示のテスト
 
 - **ApiKeyInfo.test.ts**
+
   - コンポーネントのレンダリングテスト
   - 外部リンクの存在確認
 
@@ -292,6 +301,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 以下のシナリオをCypress または Playwright で実装：
 
 1. **基本フロー**
+
    - API設定ページへのナビゲーション
    - API Keyの入力と保存
    - API Keyの検証（モック応答使用）

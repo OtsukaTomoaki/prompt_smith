@@ -132,7 +132,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ### 4.3 Composable実装（useOpenAiApi.ts）
 
-- [ ] useOpenAiApi Composableの基本構造実装
+- [x] useOpenAiApi Composableの基本構造実装
   - 工数: 0.5日
   - テスト: 状態管理のユニットテスト
   - 実装方針:
@@ -141,7 +141,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - 完了条件:
     - API Key、検証状態、ローディング状態、エラーメッセージの状態が適切に管理されること
 
-- [ ] API Key取得・保存・削除機能の実装
+- [x] API Key取得・保存・削除機能の実装
   - 工数: 1日
   - テスト: Edge Function呼び出しのモックテスト、エラーハンドリングテスト
   - 実装方針:
@@ -152,7 +152,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - getApiKey、saveApiKey、removeApiKey関数が正しく動作すること
     - エラー発生時に適切なエラーメッセージが設定されること
 
-- [ ] API Key検証機能の実装
+- [x] API Key検証機能の実装
   - 工数: 0.5日
   - テスト: OpenAI API呼び出しのモックテスト、成功/失敗ケースのテスト
   - 実装方針:
@@ -162,7 +162,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - validateApiKey関数が正しく動作し、有効/無効なAPIキーを判別できること
     - ネットワークエラー時の適切な処理が実装されていること
 
-- [ ] OpenAI APIリクエスト送信機能の実装
+- [x] OpenAI APIリクエスト送信機能の実装
   - 工数: 0.5日
   - テスト: リクエスト送信のモックテスト、レスポンス処理テスト
   - 実装方針:
@@ -257,7 +257,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ### 5.1 単体テスト
 
-- **useOpenAiApi.test.ts**
+- ✅ **useOpenAiApi.test.ts** (完了)
   - API Keyの保存・取得・削除機能のテスト
   - API Key検証機能のテスト
   - エラーハンドリングのテスト

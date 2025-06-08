@@ -85,10 +85,10 @@ describe('新機能の実装', () => {
   it('should [期待する動作]', () => {
     // Arrange: テストデータの準備
     const input = createTestInput();
-    
+
     // Act: 実際の処理実行
     const result = targetFunction(input);
-    
+
     // Assert: 期待結果の検証
     expect(result).toBe(expectedOutput);
   });
@@ -138,6 +138,7 @@ npx prettier --write .
 ### 2. 品質ゲート
 
 **実装完了の条件：**
+
 - [ ] 全テストが通過している
 - [ ] Lintエラーがゼロである
 - [ ] ビルドが成功している
@@ -200,14 +201,17 @@ echo "✅ 品質チェック完了"
 ## 📋 実装チェックリスト
 
 ### 実装前
+
 - [ ] テストファイルを作成している
 - [ ] 実装方針を決めている
 
 ### 実装中
+
 - [ ] TDDサイクルを実行している
 - [ ] 継続的にlintを実行している
 
 ### 実装後
+
 - [ ] `npm run lint` が成功する
 - [ ] `npm run test` が成功する
 - [ ] `npm run build` が成功する

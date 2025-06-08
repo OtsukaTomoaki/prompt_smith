@@ -54,35 +54,36 @@ interface ProblemClassification {
 ### 2. 症状分析フレームワーク
 
 **WHAT-WHEN-WHERE-WHO-HOW分析：**
+
 ```typescript
 interface SymptomAnalysis {
   what: {
-    observedBehavior: string;           // 実際に起きていること
-    expectedBehavior: string;           // 期待される動作
-    errorMessages: string[];            // エラーメッセージ
-    visualSymptoms: string[];           // 視覚的な症状
+    observedBehavior: string; // 実際に起きていること
+    expectedBehavior: string; // 期待される動作
+    errorMessages: string[]; // エラーメッセージ
+    visualSymptoms: string[]; // 視覚的な症状
   };
   when: {
-    firstOccurrence: Date;              // 初回発生時刻
+    firstOccurrence: Date; // 初回発生時刻
     frequency: 'always' | 'intermittent' | 'rare';
-    pattern: string;                    // 発生パターン
-    triggers: string[];                 // トリガー条件
+    pattern: string; // 発生パターン
+    triggers: string[]; // トリガー条件
   };
   where: {
-    environment: string;                // 発生環境
-    browser: string;                    // ブラウザ情報
-    device: string;                     // デバイス情報
-    networkCondition: string;           // ネットワーク状況
+    environment: string; // 発生環境
+    browser: string; // ブラウザ情報
+    device: string; // デバイス情報
+    networkCondition: string; // ネットワーク状況
   };
   who: {
-    affectedUserTypes: string[];        // 影響を受けるユーザータイプ
-    reportingUsers: number;             // 報告ユーザー数
-    userActions: string[];              // ユーザーの操作
+    affectedUserTypes: string[]; // 影響を受けるユーザータイプ
+    reportingUsers: number; // 報告ユーザー数
+    userActions: string[]; // ユーザーの操作
   };
   how: {
-    reproductionSteps: string[];        // 再現手順
-    reproductionRate: number;           // 再現率（%）
-    workarounds: string[];              // 回避策
+    reproductionSteps: string[]; // 再現手順
+    reproductionRate: number; // 再現率（%）
+    workarounds: string[]; // 回避策
   };
 }
 ```
@@ -90,28 +91,29 @@ interface SymptomAnalysis {
 ### 3. 根本原因分析（RCA）
 
 **5 Whys + Fishbone分析：**
+
 ```typescript
 interface RootCauseAnalysis {
   fiveWhys: {
-    why1: { question: string; answer: string; };
-    why2: { question: string; answer: string; };
-    why3: { question: string; answer: string; };
-    why4: { question: string; answer: string; };
-    why5: { question: string; answer: string; };
+    why1: { question: string; answer: string };
+    why2: { question: string; answer: string };
+    why3: { question: string; answer: string };
+    why4: { question: string; answer: string };
+    why5: { question: string; answer: string };
     rootCause: string;
   };
   fishbone: {
-    people: string[];                   // 人的要因
-    process: string[];                  // プロセス要因
-    technology: string[];               // 技術要因
-    environment: string[];              // 環境要因
-    materials: string[];                // 材料要因（データ、設定等）
-    methods: string[];                  // 手法要因
+    people: string[]; // 人的要因
+    process: string[]; // プロセス要因
+    technology: string[]; // 技術要因
+    environment: string[]; // 環境要因
+    materials: string[]; // 材料要因（データ、設定等）
+    methods: string[]; // 手法要因
   };
   contributingFactors: {
-    primary: string[];                  // 主要因
-    secondary: string[];                // 副要因
-    environmental: string[];            // 環境要因
+    primary: string[]; // 主要因
+    secondary: string[]; // 副要因
+    environmental: string[]; // 環境要因
   };
 }
 ```
@@ -123,6 +125,7 @@ interface RootCauseAnalysis {
 ### 1. フロントエンド（Nuxt 3 + Vue）デバッグ
 
 **Vue DevToolsを活用した診断：**
+
 ```typescript
 interface VueDebugging {
   componentInspection: {
@@ -146,6 +149,7 @@ interface VueDebugging {
 ```
 
 **Nuxt 3固有の問題診断：**
+
 ```typescript
 interface NuxtDebugging {
   ssr: {
@@ -169,6 +173,7 @@ interface NuxtDebugging {
 ### 2. バックエンド（Supabase）デバッグ
 
 **Supabase固有の問題診断：**
+
 ```typescript
 interface SupabaseDebugging {
   authentication: {
@@ -200,6 +205,7 @@ interface SupabaseDebugging {
 ### 3. API連携（OpenAI API）デバッグ
 
 **外部API連携の問題診断：**
+
 ```typescript
 interface ApiDebugging {
   connectivity: {
@@ -230,6 +236,7 @@ interface ApiDebugging {
 ### 1. ブラウザ開発者ツール活用
 
 **Chrome DevToolsマスタリー：**
+
 ```typescript
 interface ChromeDevToolsUsage {
   console: {
@@ -262,6 +269,7 @@ interface ChromeDevToolsUsage {
 ### 2. ログ分析とモニタリング
 
 **構造化ログ分析：**
+
 ```typescript
 interface LogAnalysis {
   logLevels: {
@@ -288,6 +296,7 @@ interface LogAnalysis {
 ### 3. パフォーマンス診断
 
 **包括的パフォーマンス分析：**
+
 ```typescript
 interface PerformanceDebugging {
   frontend: {
@@ -334,43 +343,32 @@ interface PerformanceDebugging {
 ### 1. バグ修正戦略
 
 **バグの分類と対処法：**
+
 ```typescript
 interface BugFixingStrategy {
   logicBugs: {
     identification: [
       'コードレビューによる論理エラーの特定',
       'ユニットテストによる期待値との比較',
-      'デバッガーによるステップ実行'
+      'デバッガーによるステップ実行',
     ];
     resolution: [
       '最小限の変更による修正',
       'テスト駆動による修正',
-      'リファクタリングによる根本解決'
+      'リファクタリングによる根本解決',
     ];
   };
   integrationBugs: {
-    identification: [
-      'API通信ログの分析',
-      'データフロー追跡',
-      'コンポーネント間の相互作用確認'
-    ];
-    resolution: [
-      'インターフェース仕様の明確化',
-      'エラーハンドリングの強化',
-      '統合テストの追加'
-    ];
+    identification: ['API通信ログの分析', 'データフロー追跡', 'コンポーネント間の相互作用確認'];
+    resolution: ['インターフェース仕様の明確化', 'エラーハンドリングの強化', '統合テストの追加'];
   };
   uiBugs: {
     identification: [
       'ブラウザ間の動作比較',
       'レスポンシブデザインの確認',
-      'アクセシビリティの検証'
+      'アクセシビリティの検証',
     ];
-    resolution: [
-      'CSS/JSの修正',
-      'ブラウザ固有の対応',
-      'プログレッシブエンハンスメント'
-    ];
+    resolution: ['CSS/JSの修正', 'ブラウザ固有の対応', 'プログレッシブエンハンスメント'];
   };
 }
 ```
@@ -378,6 +376,7 @@ interface BugFixingStrategy {
 ### 2. パフォーマンス問題解決
 
 **パフォーマンス最適化アプローチ：**
+
 ```typescript
 interface PerformanceOptimization {
   bottleneckIdentification: {
@@ -390,20 +389,15 @@ interface PerformanceOptimization {
       'コード分割とレイジーローディング',
       'リソースの最適化（画像、フォント等）',
       'キャッシュ戦略の改善',
-      '不要な再レンダリングの削除'
+      '不要な再レンダリングの削除',
     ];
     backend: [
       'データベースクエリの最適化',
       'インデックスの追加・最適化',
       'キャッシュレイヤーの導入',
-      'API レスポンスの最適化'
+      'API レスポンスの最適化',
     ];
-    network: [
-      'CDN の活用',
-      'HTTP/2 の活用',
-      'リソース圧縮',
-      'プリロード・プリフェッチ'
-    ];
+    network: ['CDN の活用', 'HTTP/2 の活用', 'リソース圧縮', 'プリロード・プリフェッチ'];
   };
 }
 ```
@@ -411,6 +405,7 @@ interface PerformanceOptimization {
 ### 3. セキュリティ問題対応
 
 **セキュリティ脆弱性の診断と対策：**
+
 ```typescript
 interface SecurityDebugging {
   vulnerabilityTypes: {
@@ -451,6 +446,7 @@ interface SecurityDebugging {
 ### 1. 再現テストの作成
 
 **問題再現のためのテスト戦略：**
+
 ```typescript
 interface ReproductionTesting {
   unitTests: {
@@ -474,6 +470,7 @@ interface ReproductionTesting {
 ### 2. 修正検証テスト
 
 **修正の効果を検証するテスト：**
+
 ```typescript
 interface FixValidationTesting {
   regressionTesting: {
@@ -501,6 +498,7 @@ interface FixValidationTesting {
 ### 1. 問題解決効率の測定
 
 **デバッグ効率の指標：**
+
 ```typescript
 interface DebuggingMetrics {
   timeMetrics: {
@@ -528,6 +526,7 @@ interface DebuggingMetrics {
 ### 2. 問題パターン分析
 
 **問題の傾向分析：**
+
 ```typescript
 interface ProblemPatternAnalysis {
   frequencyAnalysis: {
@@ -558,6 +557,7 @@ interface ProblemPatternAnalysis {
 ### 1. 事後分析（Post-Mortem）
 
 **問題解決後の振り返り：**
+
 ```typescript
 interface PostMortemAnalysis {
   timeline: {
@@ -584,6 +584,7 @@ interface PostMortemAnalysis {
 ### 2. 予防策の実装
 
 **問題の再発防止：**
+
 ```typescript
 interface PreventiveMeasures {
   processImprovements: {
@@ -610,6 +611,7 @@ interface PreventiveMeasures {
 ### 3. 知識ベースの構築
 
 **デバッグ知識の体系化：**
+
 ```typescript
 interface KnowledgeBase {
   problemDatabase: {
@@ -640,42 +642,51 @@ interface KnowledgeBase {
 ### 1. 問題レポートテンプレート
 
 **標準化された問題レポート：**
+
 ```markdown
 # 問題レポート: [問題の簡潔な説明]
 
 ## 基本情報
+
 - **報告者**: [名前]
 - **報告日時**: [YYYY-MM-DD HH:MM]
 - **優先度**: [Critical/High/Medium/Low]
 - **カテゴリ**: [Bug/Performance/Security/Usability]
 
 ## 問題の詳細
+
 ### 症状
+
 - **観察された動作**: [実際の動作]
 - **期待される動作**: [期待される動作]
 - **エラーメッセージ**: [エラーメッセージがあれば]
 
 ### 環境情報
+
 - **ブラウザ**: [ブラウザとバージョン]
 - **OS**: [オペレーティングシステム]
 - **デバイス**: [デバイス情報]
 - **ネットワーク**: [ネットワーク状況]
 
 ### 再現手順
+
 1. [ステップ1]
 2. [ステップ2]
 3. [ステップ3]
 
 ### 再現率
+
 - **再現率**: [X%]
 - **テスト回数**: [Y回]
 
 ## 影響範囲
+
 - **影響を受けるユーザー**: [ユーザー数/割合]
 - **影響を受ける機能**: [機能一覧]
 - **ビジネスへの影響**: [影響の説明]
 
 ## 添付資料
+
 - [スクリーンショット]
 - [ログファイル]
 - [ネットワークトレース]
@@ -684,23 +695,29 @@ interface KnowledgeBase {
 ### 2. 解決レポートテンプレート
 
 **解決プロセスの記録：**
+
 ```markdown
 # 解決レポート: [問題ID] - [問題の簡潔な説明]
 
 ## 解決サマリー
+
 - **解決者**: [名前]
 - **解決日時**: [YYYY-MM-DD HH:MM]
 - **解決時間**: [X時間Y分]
 - **解決方法**: [簡潔な解決方法]
 
 ## 根本原因分析
+
 ### 直接原因
+
 [直接的な原因の説明]
 
 ### 根本原因
+
 [根本的な原因の説明]
 
 ### 5 Whys分析
+
 1. Why: [問題] → Because: [原因1]
 2. Why: [原因1] → Because: [原因2]
 3. Why: [原因2] → Because: [原因3]
@@ -708,24 +725,32 @@ interface KnowledgeBase {
 5. Why: [原因4] → Because: [根本原因]
 
 ## 解決プロセス
+
 ### 調査手順
+
 1. [調査ステップ1]
 2. [調査ステップ2]
 3. [調査ステップ3]
 
 ### 使用したツール
+
 - [ツール1]: [用途]
 - [ツール2]: [用途]
 
 ### 修正内容
+
 - **ファイル**: [修正したファイル]
 - **変更内容**: [変更の詳細]
 - **テスト**: [実施したテスト]
 
 ## 予防策
+
 ### 短期的対策
+
 - [対策1]
 - [対策2]
 
 ### 長期的対策
+
 - [対策1]
+```

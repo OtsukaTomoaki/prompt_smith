@@ -72,14 +72,14 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 実装タスク
 
-- [ ] user_settingsテーブルの作成
+- [✅] user_settingsテーブルの作成（完了日: 2025-01-09, PR: 実装完了）
 
   - 工数: 0.5日
   - テスト: マイグレーションの実行テスト、テーブル構造の確認
   - 実装方針: Supabaseマイグレーションファイルを作成し、必要なカラムとインデックスを定義
   - 完了条件: テーブルが正しく作成され、RLSポリシーが適切に設定されていること
 
-- [ ] RLSポリシーの設定
+- [✅] RLSポリシーの設定（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 0.5日
   - テスト: 各ポリシーの動作確認（select, insert, update）
   - 実装方針: ユーザーIDに基づくRLSポリシーを実装し、データアクセスを制限
@@ -89,7 +89,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 4.2.1 api-key-encrypt
 
-- [ ] api-key-encryptのEdge Function実装
+- [✅] api-key-encryptのEdge Function実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 1日
   - テスト: 暗号化処理のユニットテスト、エラーハンドリングテスト
   - 実装方針:
@@ -104,7 +104,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 4.2.2 api-key-decrypt
 
-- [ ] api-key-decryptのEdge Function実装
+- [✅] api-key-decryptのEdge Function実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 1日
   - テスト: 復号処理のユニットテスト、エラーハンドリングテスト
   - 実装方針:
@@ -119,7 +119,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 4.2.3 api-key-delete
 
-- [ ] api-key-deleteのEdge Function実装
+- [✅] api-key-deleteのEdge Function実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 0.5日
   - テスト: 削除処理のユニットテスト、エラーハンドリングテスト
   - 実装方針:
@@ -181,7 +181,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 4.4.1 ApiKeyForm.vue
 
-- [ ] ApiKeyForm.vueの基本構造実装
+- [✅] ApiKeyForm.vueの基本構造実装（完了日: 2025-01-09, PR: 実装完了）
 
   - 工数: 0.5日
   - テスト: コンポーネントのレンダリングテスト
@@ -193,7 +193,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - コンポーネントが正しくレンダリングされること
     - 入力フィールドと操作ボタンが適切に配置されていること
 
-- [ ] API Key入力と表示/非表示切り替え機能の実装
+- [✅] API Key入力と表示/非表示切り替え機能の実装（完了日: 2025-01-09, PR: 実装完了）
 
   - 工数: 0.5日
   - テスト: 入力動作テスト、表示/非表示切り替えテスト
@@ -205,7 +205,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
     - API Keyが正しく入力でき、表示/非表示を切り替えられること
     - 入力値のバリデーションが機能すること
 
-- [ ] API Key保存・削除機能の実装
+- [✅] API Key保存・削除機能の実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 0.5日
   - テスト: 保存・削除機能のテスト、ローディング状態テスト
   - 実装方針:
@@ -219,7 +219,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 #### 4.4.2 ApiKeyInfo.vue
 
-- [ ] ApiKeyInfo.vueの実装
+- [✅] ApiKeyInfo.vueの実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 0.5日
   - テスト: コンポーネントのレンダリングテスト
   - 実装方針:
@@ -233,7 +233,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ### 4.5 ページ実装
 
-- [ ] pages/settings/api.vueの実装
+- [✅] pages/settings/api.vueの実装（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 1日
   - テスト: ページのレンダリングテスト、コンポーネント統合テスト
   - 実装方針:
@@ -247,7 +247,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ### 4.6 ナビゲーション修正
 
-- [ ] TabNavigation.vueの修正
+- [✅] TabNavigation.vueの修正（完了日: 2025-01-09, PR: 実装完了）
   - 工数: 0.5日
   - テスト: ナビゲーションのレンダリングテスト、アクティブ状態テスト
   - 実装方針:

@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ref } from 'vue';
 
 // モック関数を作成
 const mockInvoke = vi.fn();

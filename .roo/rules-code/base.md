@@ -77,6 +77,7 @@ prompt_smith/
 ### 2. Props と Emits
 
 - Propsは必ず型定義する（TypeScriptのジェネリック型を活用）
+
 ```ts
 defineProps<{
   title: string;
@@ -86,6 +87,7 @@ defineProps<{
 ```
 
 - Emitsも同様に型定義する
+
 ```ts
 defineEmits<{
   (e: 'update', value: string): void;
@@ -125,14 +127,14 @@ defineEmits<{
 ```ts
 export function useCounter() {
   const count = ref(0);
-  
+
   function increment() {
     count.value++;
   }
-  
+
   return {
     count,
-    increment
+    increment,
   };
 }
 ```
@@ -209,7 +211,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 const { sendRequest, isLoading, error } = useOpenAiApi();
 const response = await sendRequest('v1/chat/completions', {
   model: 'gpt-4',
-  messages: [{ role: 'user', content: prompt }]
+  messages: [{ role: 'user', content: prompt }],
 });
 ```
 
@@ -230,9 +232,11 @@ const response = await sendRequest('v1/chat/completions', {
 
 - `darkMode: 'class'`設定を使用
 - ダークモード対応クラスを適切に設定
+
 ```html
-<div class="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">
+<div class="bg-white text-gray-900 dark:bg-gray-800 dark:text-white"></div>
 ```
+
 - ダークモード切替は`html.class = 'dark'`で制御
 
 ### 3. レスポンシブデザイン
@@ -240,17 +244,20 @@ const response = await sendRequest('v1/chat/completions', {
 - モバイルファーストアプローチを採用
 - ブレークポイントは Tailwind のデフォルト値を使用
   - sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
+
 ```html
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
 ```
 
 ### 4. コンポーネントライブラリ
 
 - 共通UIは `components/ui/` に配置
 - アイコンは `lucide-vue-next` を使用（例：`HammerIcon`, `UserIcon`）
+
 ```html
 <HammerIcon class="w-6 h-6" />
 ```
+
 - フォントは Google Fonts の Inter を使用
 
 ---
@@ -260,6 +267,7 @@ const response = await sendRequest('v1/chat/completions', {
 ### 1. エラーハンドリング
 
 - API通信などの非同期処理は必ず`try-catch`で囲む
+
 ```ts
 try {
   await apiCall();
@@ -277,6 +285,7 @@ try {
 
 - 処理中は適切なローディング表示（`LoadingSpinner`コンポーネント）
 - 成功/エラー時はトースト通知（`useToast`composable）
+
 ```ts
 const { showToast } = useToast();
 showToast('操作が完了しました', 'success');
@@ -289,18 +298,18 @@ showToast('操作が完了しました', 'success');
 
 ## 📐 命名規則
 
-| 対象             | 規則                          | 例                           |
-| :--------------- | :---------------------------- | :--------------------------- |
-| コンポーネント名 | PascalCase                    | `PromptCard.vue`            |
-| コンポーザブル   | camelCase + use接頭辞         | `useOpenAiApi.ts`           |
-| 関数・変数名     | camelCase                     | `getPromptData`             |
-| 定数             | UPPER_SNAKE_CASE             | `MAX_RETRY_COUNT`           |
-| インターフェース | PascalCase + I接頭辞         | `IPromptData`               |
-| 型エイリアス     | PascalCase                    | `PromptType`                |
-| DBカラム名       | snake_case                    | `created_at`                |
-| CSSクラス        | Tailwind準拠                  | `bg-gray-900`               |
-| ファイル名       | コンポーネント: PascalCase    | `PromptCard.vue`            |
-|                  | その他: camelCase             | `useOpenAiApi.ts`           |
+| 対象             | 規則                       | 例                |
+| :--------------- | :------------------------- | :---------------- |
+| コンポーネント名 | PascalCase                 | `PromptCard.vue`  |
+| コンポーザブル   | camelCase + use接頭辞      | `useOpenAiApi.ts` |
+| 関数・変数名     | camelCase                  | `getPromptData`   |
+| 定数             | UPPER_SNAKE_CASE           | `MAX_RETRY_COUNT` |
+| インターフェース | PascalCase + I接頭辞       | `IPromptData`     |
+| 型エイリアス     | PascalCase                 | `PromptType`      |
+| DBカラム名       | snake_case                 | `created_at`      |
+| CSSクラス        | Tailwind準拠               | `bg-gray-900`     |
+| ファイル名       | コンポーネント: PascalCase | `PromptCard.vue`  |
+|                  | その他: camelCase          | `useOpenAiApi.ts` |
 
 ---
 
@@ -311,6 +320,7 @@ showToast('操作が完了しました', 'success');
 - 型は可能な限り明示的に定義
 - `any`型の使用は避け、`unknown`や具体的な型を使用
 - インターフェースや型エイリアスを活用
+
 ```ts
 interface PromptData {
   id: string;
@@ -408,10 +418,10 @@ test('プロンプトカードが正しく表示される', () => {
       description: '説明文',
       model: 'GPT-4',
       lastEdited: '1日前',
-      link: '/edit/1'
-    }
+      link: '/edit/1',
+    },
   });
-  
+
   expect(wrapper.text()).toContain('テストプロンプト');
   expect(wrapper.text()).toContain('説明文');
   expect(wrapper.text()).toContain('GPT-4');

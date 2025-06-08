@@ -6,15 +6,16 @@ Promptsmithアプリケーションにおいて、ユーザーが自身のOpenAI
 
 ## 2. 実装スケジュール
 
-| フェーズ | 内容                         | 期間     | 担当               |
-| :------- | :--------------------------- | :------- | :----------------- |
-| 1        | 基本設計の確認と環境準備     | 1日目    | フロントエンド担当 |
-| 2        | Composableの実装             | 2日目    | フロントエンド担当 |
-| 3        | コンポーネント実装           | 3-4日目  | フロントエンド担当 |
-| 4        | ページ実装とルーティング設定 | 5日目    | フロントエンド担当 |
-| 5        | 単体テスト・統合テスト       | 6-7日目  | テスト担当         |
-| 6        | レビューと修正               | 8日目    | 全員               |
-| 7        | デプロイ準備とリリース       | 9-10日目 | インフラ担当       |
+| フェーズ | 内容                         | 期間      | 担当               |
+| :------- | :--------------------------- | :-------- | :----------------- |
+| 1        | 基本設計の確認と環境準備     | 1日目     | フロントエンド担当 |
+| 2        | Edge Function実装            | 2-3日目   | バックエンド担当   |
+| 3        | Composableの実装             | 3-4日目   | フロントエンド担当 |
+| 4        | コンポーネント実装           | 5-6日目   | フロントエンド担当 |
+| 5        | ページ実装とルーティング設定 | 7日目     | フロントエンド担当 |
+| 6        | 単体テスト・統合テスト       | 8-9日目   | テスト担当         |
+| 7        | レビューと修正               | 10日目    | 全員               |
+| 8        | デプロイ準備とリリース       | 11-12日目 | インフラ担当       |
 
 ## 3. 実装対象ファイル一覧
 
@@ -35,6 +36,16 @@ pages/
 
 layouts/
   └── settings.vue            # 設定画面用レイアウト（オプション）
+
+supabase/
+  └── migrations/
+      └── 003_create_user_settings.sql  # user_settingsテーブル作成
+
+supabase/
+  └── functions/
+      ├── api-key-encrypt/    # API Key暗号化用Edge Function
+      ├── api-key-decrypt/    # API Key復号用Edge Function
+      └── api-key-delete/     # API Key削除用Edge Function
 
 tests/
   ├── composables/
@@ -57,11 +68,254 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 ## 4. 詳細実装計画
 
-### 4.1 Composable実装（useOpenAiApi.ts）
+### 4.1 Supabase Migration実装（003_create_user_settings.sql）
+
+#### テーブル定義
+
+```sql
+create table user_settings (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users,
+  encrypted_key text,
+  created_at timestamp with time zone default timezone('utc', now()),
+  updated_at timestamp with time zone default timezone('utc', now()),
+  unique(user_id)
+);
+
+-- RLSポリシー設定
+alter table user_settings enable row level security;
+
+create policy "ユーザーは自分の設定のみ参照可能"
+  on user_settings for select
+  using (auth.uid() = user_id);
+
+create policy "ユーザーは自分の設定のみ更新可能"
+  on user_settings for update
+  using (auth.uid() = user_id);
+
+create policy "ユーザーは自分の設定のみ作成可能"
+  on user_settings for insert
+  with check (auth.uid() = user_id);
+```
+
+### 4.2 Edge Function実装
+
+#### 4.2.1 api-key-encrypt
+
+```typescript
+// supabase/functions/api-key-encrypt/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  // CORS対応
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const { apiKey } = await req.json();
+
+    // 暗号化処理
+    const encoder = new TextEncoder();
+    const key = encoder.encode(Deno.env.get('OPENAI_ENCRYPTION_SECRET'));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = encoder.encode(apiKey);
+
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['encrypt']),
+      data,
+    );
+
+    // 暗号化データとIVを結合して保存
+    const encryptedArray = new Uint8Array(iv.length + encryptedData.byteLength);
+    encryptedArray.set(iv, 0);
+    encryptedArray.set(new Uint8Array(encryptedData), iv.length);
+    const encryptedBase64 = encode(encryptedArray);
+
+    // Supabaseクライアント初期化
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
+    );
+
+    // ユーザー情報取得
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+    if (userError) throw new Error('認証エラー');
+
+    // user_settingsテーブルに保存
+    const { data, error } = await supabaseClient
+      .from('user_settings')
+      .upsert({
+        user_id: user.id,
+        encrypted_key: encryptedBase64,
+        updated_at: new Date().toISOString(),
+      })
+      .select();
+
+    if (error) throw error;
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
+```
+
+#### 4.2.2 api-key-decrypt
+
+```typescript
+// supabase/functions/api-key-decrypt/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { decode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  // CORS対応
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    // Supabaseクライアント初期化
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
+    );
+
+    // ユーザー情報取得
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+    if (userError) throw new Error('認証エラー');
+
+    // 暗号化されたキーを取得
+    const { data, error } = await supabaseClient
+      .from('user_settings')
+      .select('encrypted_key')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) throw error;
+    if (!data?.encrypted_key) {
+      return new Response(JSON.stringify({ apiKey: null }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 復号処理
+    const decoder = new TextDecoder();
+    const key = new TextEncoder().encode(Deno.env.get('OPENAI_ENCRYPTION_SECRET'));
+    const encryptedArray = decode(data.encrypted_key);
+
+    // IVと暗号化データを分離
+    const iv = encryptedArray.slice(0, 12);
+    const encryptedData = encryptedArray.slice(12);
+
+    const decryptedData = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt']),
+      encryptedData,
+    );
+
+    const apiKey = decoder.decode(decryptedData);
+
+    return new Response(JSON.stringify({ apiKey }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
+```
+
+#### 4.2.3 api-key-delete
+
+```typescript
+// supabase/functions/api-key-delete/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  // CORS対応
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    // Supabaseクライアント初期化
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
+    );
+
+    // ユーザー情報取得
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+    if (userError) throw new Error('認証エラー');
+
+    // encrypted_keyをNULLに更新
+    const { data, error } = await supabaseClient
+      .from('user_settings')
+      .update({
+        encrypted_key: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
+```
+
+### 4.3 Composable実装（useOpenAiApi.ts）
 
 #### 機能
 
-- API Keyの保存・取得・削除
+- API Keyの保存・取得・削除（Edge Function経由）
 - API Keyの有効性検証
 - OpenAI APIへのリクエスト送信
 
@@ -76,21 +330,21 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 - **メソッド**
 
-  - `getApiKey()`: localStorage からAPI Keyを取得
+  - `getApiKey()`: Edge Function経由でAPI Keyを取得
   - `getMaskedApiKey()`: 表示用にマスクされたAPI Keyを取得
-  - `saveApiKey(key)`: API Keyを localStorage に保存
-  - `removeApiKey()`: API Keyを localStorage から削除
+  - `saveApiKey(key)`: Edge Function経由でAPI Keyを暗号化保存
+  - `removeApiKey()`: Edge Function経由でAPI Keyを削除
   - `validateApiKey(key?)`: API Keyの有効性を検証（OpenAI API呼び出し）
   - `sendRequest(endpoint, data)`: OpenAI APIへリクエスト送信
 
 - **実装ポイント**
-  - クライアントサイドのみで動作するよう `process.client` チェック
-  - API Keyは 'promptsmith_openai_api_key' キーで localStorage に保存
+  - Edge Function呼び出しにはSupabaseクライアントを使用
+  - API Keyはクライアント側のメモリにのみ一時的に保持（セッション中）
   - エラーハンドリングの徹底
 
-### 4.2 コンポーネント実装
+### 4.4 コンポーネント実装
 
-#### 4.2.1 ApiKeyForm.vue
+#### 4.4.1 ApiKeyForm.vue
 
 #### 主要機能
 
@@ -119,7 +373,7 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - 成功/エラー時のトースト表示
   - 初期表示時の保存済みAPI Key読み込み
 
-#### 4.2.2 ApiKeyInfo.vue
+#### 4.4.2 ApiKeyInfo.vue
 
 #### 主要機能
 
@@ -134,9 +388,9 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - セキュリティ警告の視覚的強調
   - ダークモード対応
 
-### 4.3 ページ実装
+### 4.5 ページ実装
 
-#### 4.3.1 pages/settings/api.vue
+#### 4.5.1 pages/settings/api.vue
 
 #### 主要機能
 
@@ -151,9 +405,9 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
   - ダークモード対応
   - SEO対応（title, meta description）
 
-### 4.4 ナビゲーション修正
+### 4.6 ナビゲーション修正
 
-#### 4.4.1 components/ui/TabNavigation.vue の修正
+#### 4.6.1 components/ui/TabNavigation.vue の修正
 
 #### 修正内容
 
@@ -181,15 +435,15 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 - **テストポイント**
 
-  - localStorage操作の正常動作
+  - Edge Function呼び出しの正常動作
   - API Key検証の成功・失敗ケース
   - ネットワークエラー処理
   - リクエスト送信の正常動作
 
 - **モック対象**
-  - localStorage
+  - Supabase Functions
   - fetch API
-  - process.client
+  - useNuxtApp
 
 ### 5.2 コンポーネントテスト（ApiKeyForm.test.ts）
 
@@ -235,27 +489,33 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 - [ ] すべてのコンポーネントテストが成功すること
 - [ ] E2Eテストが成功すること
 - [ ] コードレビューが完了していること
-- [ ] セキュリティレビューが完了していること（特にlocalStorageの使用）
+- [ ] セキュリティレビューが完了していること（特にEdge Functionの暗号化処理）
+- [ ] 環境変数（OPENAI_ENCRYPTION_SECRET）が設定されていること
 
 ### 6.2 デプロイ手順
 
-1. 開発環境でのテスト完了後、ステージング環境にデプロイ
-2. ステージング環境での動作確認
-3. 本番環境へのデプロイ
-4. デプロイ後の動作確認
+1. Supabaseマイグレーションの実行（user_settingsテーブル作成）
+2. Edge Functionのデプロイ
+3. フロントエンドコードのデプロイ
+4. 動作確認
 
 ### 6.3 ロールバック計画
 
-問題が発生した場合は、以前のバージョンに戻すための手順を用意する。
+問題が発生した場合は、以下の手順でロールバックを行う：
+
+1. フロントエンドコードを前バージョンに戻す
+2. Edge Functionを前バージョンに戻す
+3. 必要に応じてデータベースのロールバック
 
 ## 7. リスク管理
 
-| リスク               | 影響度 | 対策                                                                   |
-| :------------------- | :----- | :--------------------------------------------------------------------- |
-| API Keyの漏洩        | 高     | ・localStorageのみに保存<br>・マスキング表示<br>・セキュリティ警告表示 |
-| OpenAI APIの仕様変更 | 中     | ・エラーハンドリングの強化<br>・定期的な動作確認                       |
-| ブラウザ互換性の問題 | 中     | ・主要ブラウザでのテスト<br>・フォールバック機能の実装                 |
-| localStorage容量制限 | 低     | ・最小限のデータのみ保存<br>・エラーハンドリング                       |
+| リスク               | 影響度 | 対策                                                                    |
+| :------------------- | :----- | :---------------------------------------------------------------------- |
+| API Keyの漏洩        | 高     | ・Edge Functionでの暗号化<br>・マスキング表示<br>・セキュリティ警告表示 |
+| 暗号化キーの漏洩     | 高     | ・環境変数での管理<br>・定期的なキーローテーション                      |
+| OpenAI APIの仕様変更 | 中     | ・エラーハンドリングの強化<br>・定期的な動作確認                        |
+| Edge Function障害    | 中     | ・エラー時のフォールバック処理<br>・監視体制の構築                      |
+| ブラウザ互換性の問題 | 中     | ・主要ブラウザでのテスト<br>・フォールバック機能の実装                  |
 
 ## 8. 将来の拡張計画
 
@@ -276,13 +536,14 @@ components/ui/TabNavigation.vue # ナビゲーションタブにAPI設定追加
 
 1. **セキュリティ**
 
-   - API Keyは常にクライアントサイドでのみ処理し、サーバーに送信しない
+   - 暗号化キー（OPENAI_ENCRYPTION_SECRET）は十分な強度を持つランダムな値を使用
    - デバッグログにAPI Keyが出力されないよう注意
+   - Edge Functionのアクセス制御を適切に設定
 
 2. **パフォーマンス**
 
    - API Key検証は必要最小限に抑える
-   - 頻繁なAPI呼び出しを避ける
+   - Edge Function呼び出しの最適化
 
 3. **ユーザビリティ**
 

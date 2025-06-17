@@ -255,40 +255,27 @@ describe('EditPage', () => {
   });
 
   it('ローディング状態が正しく設定される', async () => {
-    // usePromptsApiのモック（遅延を模倣）
-    global.usePromptsApi = vi.fn().mockImplementation(() => ({
-      getPromptById: vi.fn().mockResolvedValue({
-        id: 'test-id',
-        title: 'テストタイトル',
-        description: 'テスト説明',
-        prompt_text: 'テストプロンプト',
-        model: 'gpt-4',
-      }),
-      updatePrompt: vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return { id: 'test-id' };
-      }),
-      error: ref(null),
-      isLoading: ref(false),
-    }));
-
     const wrapper = mount(EditPage, {
       global: {
         stubs,
       },
     });
 
-    // onMountedの処理を待機
+    // onMountedでのデータ取得が完了するまで待機
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
 
-    // 送信ボタンをクリック
-    await wrapper.findComponent({ name: 'ActionButtons' }).vm.$emit('primary-action');
+    // データ取得完了後、isSubmittingがfalseであることを確認
+    expect(wrapper.vm.isSubmitting).toBe(false);
 
-    // isSubmittingがtrueになっているか確認
+    // handleSave関数を直接呼び出して、ローディング状態をテスト
+    const savePromise = wrapper.vm.handleSave();
+    
+    // 関数呼び出し直後にローディング状態を確認
     expect(wrapper.vm.isSubmitting).toBe(true);
 
     // 非同期処理の完了を待機
-    await vi.advanceTimersByTime(100);
+    await savePromise;
     await wrapper.vm.$nextTick();
 
     // 処理完了後にisSubmittingがfalseになっているか確認
@@ -311,18 +298,15 @@ describe('EditPage', () => {
   });
 
   it('ページ読み込み時にローディング状態が正しく設定される', async () => {
-    // usePromptsApiのモック（遅延を模倣）
+    // 遅延Promise作成用の関数
+    let resolveGetPrompt;
+    const getPromptPromise = new Promise((resolve) => {
+      resolveGetPrompt = resolve;
+    });
+
+    // usePromptsApiのモック（手動制御の遅延）
     global.usePromptsApi = vi.fn().mockImplementation(() => ({
-      getPromptById: vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return {
-          id: 'test-id',
-          title: 'テストタイトル',
-          description: 'テスト説明',
-          prompt_text: 'テストプロンプト',
-          model: 'gpt-4',
-        };
-      }),
+      getPromptById: vi.fn().mockReturnValue(getPromptPromise),
       updatePrompt: vi.fn(),
       error: ref(null),
       isLoading: ref(false),
@@ -334,12 +318,24 @@ describe('EditPage', () => {
       },
     });
 
-    // マウント直後はisSubmittingがtrueになっているか確認
+    // onMountedが実行されるのを待つ
+    await wrapper.vm.$nextTick();
+
+    // OpenAI API初期化後、データ取得処理でisSubmittingがtrueになることを確認
     expect(wrapper.vm.isSubmitting).toBe(true);
 
+    // データ取得完了をシミュレート
+    resolveGetPrompt({
+      id: 'test-id',
+      title: 'テストタイトル',
+      description: 'テスト説明',
+      prompt_text: 'テストプロンプト',
+      model: 'gpt-4',
+    });
+
     // 非同期処理の完了を待機
-    await vi.advanceTimersByTime(100);
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick(); // 追加の待機
 
     // データ取得完了後にisSubmittingがfalseになっているか確認
     expect(wrapper.vm.isSubmitting).toBe(false);

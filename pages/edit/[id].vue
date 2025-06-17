@@ -74,7 +74,7 @@
     <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
       <!-- 入力フォーム -->
       <div class="lg:w-1/2">
-        <PromptRunSection v-model="input" :output="output" @run="handleRun" />
+        <PromptRunSection v-model="input" :output="output" :isRunning="isRunning" @run="handleRun" />
       </div>
 
       <!-- プレビュー表示 -->
@@ -112,6 +112,9 @@ const activeTab = ref('edit');
 // プロンプトAPI
 const { getPromptById, updatePrompt, error: apiError, isLoading } = usePromptsApi();
 
+// OpenAI API
+const { sendRequest, hasApiKey, initialize } = useOpenAiApi();
+
 // トースト通知の状態
 const toast = useToast();
 
@@ -124,6 +127,7 @@ const description = ref('');
 const yaml = ref('');
 const input = ref('');
 const output = ref('');
+const isRunning = ref(false);
 
 // ルートパラメータからIDを取得
 const route = useRoute();
@@ -155,29 +159,81 @@ const getCurrentDateTime = () => {
 };
 
 // 実行処理
-const handleRun = () => {
-  // 入力をプロンプトに適用
-  const promptTemplate = extractPromptText();
-  const filledPrompt = promptTemplate.replace('{{input}}', input.value);
+const handleRun = async () => {
+  if (!hasApiKey.value) {
+    toast.showToast('OpenAI APIキーが設定されていません。設定画面で設定してください。', 'error');
+    return;
+  }
 
-  // 実際のAPIコールはここで行う（現在はモック）
-  output.value = `1. これは簡略化された説明です。\n2. デモンストレーション用に作成されました。\n3. 実際のAPIに置き換えてください。`;
+  const promptText = extractPromptText();
+  if (!promptText.trim()) {
+    toast.showToast('プロンプト本文を入力してください', 'error');
+    return;
+  }
+
+  isRunning.value = true;
+  output.value = '';
+
+  try {
+    // 入力をプロンプトに適用
+    const filledPrompt = promptText.replace('{{input}}', input.value);
+
+    // OpenAI API のモデル名をマップ
+    const modelMap: { [key: string]: string } = {
+      'GPT-4': 'gpt-4',
+      'GPT-4o': 'gpt-4o',
+      'GPT-4o mini': 'gpt-4o-mini',
+      'GPT-3.5 Turbo': 'gpt-3.5-turbo',
+      'GPT-3.5': 'gpt-3.5-turbo',
+      'gpt-4': 'gpt-4',
+      'gpt-3.5-turbo': 'gpt-3.5-turbo'
+    };
+
+    const currentModel = extractModel();
+    const apiModel = modelMap[currentModel] || 'gpt-3.5-turbo';
+
+    // OpenAI API にリクエスト送信
+    const response = await sendRequest<any>('v1/chat/completions', {
+      model: apiModel,
+      messages: [
+        {
+          role: 'user',
+          content: filledPrompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+
+    if (response && response.choices && response.choices[0]) {
+      output.value = response.choices[0].message.content;
+      toast.showToast('プロンプトの実行が完了しました', 'success');
+    } else {
+      output.value = 'APIからの応答が取得できませんでした。';
+      toast.showToast('APIからの応答が正しく取得できませんでした', 'error');
+    }
+  } catch (error) {
+    console.error('プロンプト実行エラー:', error);
+    output.value = 'エラーが発生しました。APIキーが正しいか確認してください。';
+    toast.showToast('プロンプトの実行中にエラーが発生しました', 'error');
+  } finally {
+    isRunning.value = false;
+  }
 };
 
 // エラータイプに応じたメッセージを取得
-const getErrorMessage = (error: any): { message: string; type: string } => {
+const getErrorMessage = (error: any): { message: string } => {
   if (typeof error === 'string') {
     if (error.includes('認証') || error.includes('ログイン')) {
-      return { message: error, type: 'auth' };
+      return { message: error };
     } else if (error.includes('ネットワーク') || error.includes('接続')) {
-      return { message: error, type: 'network' };
+      return { message: error };
     }
-    return { message: error, type: 'unknown' };
+    return { message: error };
   }
 
   return {
     message: '予期せぬエラーが発生しました。もう一度お試しください。',
-    type: 'unknown',
   };
 };
 
@@ -194,7 +250,7 @@ const handleSave = async () => {
     });
 
     if (apiError.value) {
-      const { message, type } = getErrorMessage(apiError.value);
+      const { message } = getErrorMessage(apiError.value);
       toast.showToast(`エラー: ${message}`, 'error');
     } else if (result) {
       toast.showToast('プロンプトが正常に更新されました', 'success');
@@ -214,6 +270,8 @@ const handleSave = async () => {
 
 // ページ読み込み時の処理
 onMounted(async () => {
+  // OpenAI API の初期化
+  await initialize();
   isSubmitting.value = true;
 
   try {

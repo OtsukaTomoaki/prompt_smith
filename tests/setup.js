@@ -1,6 +1,10 @@
 import { vi } from 'vitest';
 import { config } from '@vue/test-utils';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+// Vue composablesをグローバルに設定
+global.ref = ref;
+global.onMounted = onMounted;
 
 // Nuxtの自動インポート機能をモック
 global.usePromptValidation = vi.fn().mockImplementation(() => ({
@@ -39,6 +43,8 @@ global.useRoute = vi.fn().mockImplementation(() => ({
 }));
 
 global.navigateTo = vi.fn();
+
+global.useHead = vi.fn();
 
 // usePromptsApiのモック
 global.usePromptsApi = vi.fn().mockImplementation(() => ({
@@ -92,6 +98,31 @@ global.usePromptsApi = vi.fn().mockImplementation(() => ({
   deletePrompt: vi.fn().mockResolvedValue(true),
   error: ref(null),
   isLoading: ref(false),
+}));
+
+// useOpenAiApiのモック
+global.useOpenAiApi = vi.fn().mockImplementation(() => ({
+  sendRequest: vi.fn().mockResolvedValue({
+    choices: [
+      {
+        message: {
+          content: 'Mock OpenAI response content',
+        },
+      },
+    ],
+  }),
+  hasApiKey: ref(true),
+  initialize: vi.fn().mockResolvedValue(true),
+  apiKey: ref('mock-api-key'),
+  isLoading: ref(false),
+  error: ref(null),
+  isValidating: ref(false),
+  isValid: ref(true),
+  hasStoredKey: ref(true),
+  getApiKey: vi.fn().mockResolvedValue(true),
+  saveApiKey: vi.fn().mockResolvedValue(true),
+  removeApiKey: vi.fn().mockResolvedValue(true),
+  validateApiKey: vi.fn().mockResolvedValue(true),
 }));
 
 // Lucideアイコンのモック

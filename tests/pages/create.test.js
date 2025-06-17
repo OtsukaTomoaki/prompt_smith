@@ -268,12 +268,47 @@ describe('CreatePage', () => {
     // onMountedの処理を待機
     await wrapper.vm.$nextTick();
 
-    // 直接handleRun関数を呼び出し
-    wrapper.vm.handleRun();
+    // プロンプトテキストを設定
+    wrapper.vm.form.prompt_text = 'テストプロンプト {{input}}';
+    wrapper.vm.input = 'テスト入力';
+
+    // 非同期でhandleRun関数を呼び出し
+    await wrapper.vm.handleRun();
     await wrapper.vm.$nextTick();
 
     // 出力が生成されるか
     expect(wrapper.vm.output).not.toBe('');
-    expect(wrapper.vm.output).toContain('デモンストレーション用に作成されました');
+    expect(wrapper.vm.output).toContain('Mock OpenAI response content');
+    expect(wrapper.vm.isRunning).toBe(false);
+  });
+
+  it('APIキーが設定されていない場合のエラーハンドリング', async () => {
+    // hasApiKeyがfalseを返すようにモックを更新
+    const mockUseOpenAiApi = vi.fn().mockImplementation(() => ({
+      sendRequest: vi.fn(),
+      hasApiKey: ref(false),
+      initialize: vi.fn().mockResolvedValue(true),
+    }));
+
+    vi.stubGlobal('useOpenAiApi', mockUseOpenAiApi);
+
+    const wrapper = mount(CreatePage, {
+      global: {
+        stubs,
+      },
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // プロンプトテキストを設定
+    wrapper.vm.form.prompt_text = 'テストプロンプト';
+
+    // handleRunを呼び出し
+    await wrapper.vm.handleRun();
+    await wrapper.vm.$nextTick();
+
+    // エラー時は出力が空のまま
+    expect(wrapper.vm.output).toBe('');
+    expect(wrapper.vm.isRunning).toBe(false);
   });
 });

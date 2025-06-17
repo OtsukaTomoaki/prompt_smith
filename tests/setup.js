@@ -1,6 +1,10 @@
 import { vi } from 'vitest';
 import { config } from '@vue/test-utils';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+// Vue composablesをグローバルに設定
+global.ref = ref;
+global.onMounted = onMounted;
 
 // Nuxtの自動インポート機能をモック
 global.usePromptValidation = vi.fn().mockImplementation(() => ({
@@ -39,6 +43,8 @@ global.useRoute = vi.fn().mockImplementation(() => ({
 }));
 
 global.navigateTo = vi.fn();
+
+global.useHead = vi.fn();
 
 // usePromptsApiのモック
 global.usePromptsApi = vi.fn().mockImplementation(() => ({

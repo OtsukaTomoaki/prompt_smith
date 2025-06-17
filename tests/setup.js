@@ -100,6 +100,31 @@ global.usePromptsApi = vi.fn().mockImplementation(() => ({
   isLoading: ref(false),
 }));
 
+// useOpenAiApiのモック
+global.useOpenAiApi = vi.fn().mockImplementation(() => ({
+  sendRequest: vi.fn().mockResolvedValue({
+    choices: [
+      {
+        message: {
+          content: 'Mock OpenAI response content',
+        },
+      },
+    ],
+  }),
+  hasApiKey: ref(true),
+  initialize: vi.fn().mockResolvedValue(true),
+  apiKey: ref('mock-api-key'),
+  isLoading: ref(false),
+  error: ref(null),
+  isValidating: ref(false),
+  isValid: ref(true),
+  hasStoredKey: ref(true),
+  getApiKey: vi.fn().mockResolvedValue(true),
+  saveApiKey: vi.fn().mockResolvedValue(true),
+  removeApiKey: vi.fn().mockResolvedValue(true),
+  validateApiKey: vi.fn().mockResolvedValue(true),
+}));
+
 // Lucideアイコンのモック
 config.global.stubs = {
   ...config.global.stubs,

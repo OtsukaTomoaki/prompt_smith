@@ -109,7 +109,7 @@
     <div v-if="activeTab === 'run'" class="flex flex-col lg:flex-row gap-6">
       <!-- 入力フォーム -->
       <div class="lg:w-1/2">
-        <PromptRunSection v-model="input" :output="output" @run="handleRun" />
+        <PromptRunSection v-model="input" :output="output" :isRunning="isRunning" @run="handleRun" />
       </div>
 
       <!-- プレビュー表示 -->
@@ -143,8 +143,7 @@ import ActionButtons from '../components/ui/ActionButtons.vue';
 import TabNavigation from '../components/ui/TabNavigation.vue';
 import PromptRunSection from '../components/PromptRunSection.vue';
 // Nuxt 3はコンポーネントを自動インポートするため、明示的なインポートは不要
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { useToast, type ToastType } from '../composables/useToast';
+import { useToast } from '../composables/useToast';
 
 // アクティブなタブ（編集/実行）
 const activeTab = ref('edit');
@@ -152,6 +151,7 @@ const activeTab = ref('edit');
 // 実行機能用の状態
 const input = ref('');
 const output = ref('');
+const isRunning = ref(false);
 
 // 現在の日時を取得する関数
 const getCurrentDateTime = () => {
@@ -174,27 +174,31 @@ const {
 const toast = useToast();
 
 // テスト環境では自動的にモデルを選択
-onMounted(() => {
+onMounted(async () => {
   initializeDefaultModel();
+  // OpenAI API の初期化
+  await initialize();
 });
 
 // プロンプトAPI
-const { createPrompt, error: apiError, isLoading } = usePromptsApi();
+const { createPrompt, error: apiError } = usePromptsApi();
+
+// OpenAI API
+const { sendRequest, hasApiKey, initialize } = useOpenAiApi();
 
 // エラータイプに応じたメッセージを取得
-const getErrorMessage = (error: any): { message: string; type: string } => {
+const getErrorMessage = (error: any): { message: string } => {
   if (typeof error === 'string') {
     if (error.includes('認証') || error.includes('ログイン')) {
-      return { message: error, type: 'auth' };
+      return { message: error };
     } else if (error.includes('ネットワーク') || error.includes('接続')) {
-      return { message: error, type: 'network' };
+      return { message: error };
     }
-    return { message: error, type: 'unknown' };
+    return { message: error };
   }
 
   return {
     message: '予期せぬエラーが発生しました。もう一度お試しください。',
-    type: 'unknown',
   };
 };
 
@@ -218,7 +222,7 @@ const handleSubmit = async () => {
     });
 
     if (apiError.value) {
-      const { message, type } = getErrorMessage(apiError.value);
+      const { message } = getErrorMessage(apiError.value);
       submitError.value = message;
       toast.showToast(`エラー: ${message}`, 'error');
     } else if (result) {
@@ -239,13 +243,63 @@ const handleSubmit = async () => {
   }
 };
 // プロンプト実行処理
-const handleRun = () => {
-  // 入力をプロンプトに適用
-  const promptTemplate = form.prompt_text;
-  const filledPrompt = promptTemplate.replace('{{input}}', input.value);
+const handleRun = async () => {
+  if (!hasApiKey.value) {
+    toast.showToast('OpenAI APIキーが設定されていません。設定画面で設定してください。', 'error');
+    return;
+  }
 
-  // 実際のAPIコールはここで行う（現在はモック）
-  output.value = `1. これは簡略化された説明です。\n2. デモンストレーション用に作成されました。\n3. 実際のAPIに置き換えてください。`;
+  if (!form.prompt_text.trim()) {
+    toast.showToast('プロンプト本文を入力してください', 'error');
+    return;
+  }
+
+  isRunning.value = true;
+  output.value = '';
+
+  try {
+    // 入力をプロンプトに適用
+    const promptTemplate = form.prompt_text;
+    const filledPrompt = promptTemplate.replace('{{input}}', input.value);
+
+    // OpenAI API のモデル名をマップ
+    const modelMap: { [key: string]: string } = {
+      'GPT-4': 'gpt-4',
+      'GPT-4o': 'gpt-4o',
+      'GPT-4o mini': 'gpt-4o-mini',
+      'GPT-3.5 Turbo': 'gpt-3.5-turbo',
+      'GPT-3.5': 'gpt-3.5-turbo'
+    };
+
+    const apiModel = modelMap[form.model] || 'gpt-3.5-turbo';
+
+    // OpenAI API にリクエスト送信
+    const response = await sendRequest<any>('v1/chat/completions', {
+      model: apiModel,
+      messages: [
+        {
+          role: 'user',
+          content: filledPrompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+
+    if (response && response.choices && response.choices[0]) {
+      output.value = response.choices[0].message.content;
+      toast.showToast('プロンプトの実行が完了しました', 'success');
+    } else {
+      output.value = 'APIからの応答が取得できませんでした。';
+      toast.showToast('APIからの応答が正しく取得できませんでした', 'error');
+    }
+  } catch (error) {
+    console.error('プロンプト実行エラー:', error);
+    output.value = 'エラーが発生しました。APIキーが正しいか確認してください。';
+    toast.showToast('プロンプトの実行中にエラーが発生しました', 'error');
+  } finally {
+    isRunning.value = false;
+  }
 };
 </script>
 
